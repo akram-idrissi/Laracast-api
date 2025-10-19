@@ -1,0 +1,611 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:05.000
+In the last episode we implemented this includes property on our ticket resource.
+
+00:00:05.000 --> 00:00:10.000
+And I think that this is great, I think we need to do that.
+
+00:00:10.000 --> 00:00:15.000
+However, I think that the client needs to opt into that because it does add size to the payload.
+
+00:00:15.000 --> 00:00:20.000
+And the client might not necessarily want that information with every request for a ticket.
+
+00:00:20.000 --> 00:00:25.000
+So I think we need to do that.
+
+00:00:25.000 --> 00:00:30.000
+So we can do that very easily by just adding an include query parameter.
+
+00:00:30.000 --> 00:00:35.000
+We could just say for the ticket,
+
+00:00:35.000 --> 00:00:40.000
+we could include the author because that's what we would want to do.
+
+00:00:40.000 --> 00:00:45.000
+And then we would include that author information.
+
+00:00:45.000 --> 00:00:50.000
+So then the question becomes, how do we implement that?
+
+00:00:50.000 --> 00:00:55.000
+I think the most straightforward thing to do is to just have something like this inside of our controller.
+
+00:00:55.000 --> 00:01:00.000
+So that we can have a method called include.
+
+00:01:00.000 --> 00:01:05.000
+And we could check to see if the author was included or part of the request, I should say.
+
+00:01:05.000 --> 00:01:10.000
+So the client is requesting that we include the author.
+
+00:01:10.000 --> 00:01:15.000
+And if so, then we could provide our ticket information
+
+00:01:15.000 --> 00:01:20.000
+with the user relationship and that would work.
+
+00:01:20.000 --> 00:01:25.000
+And there are many different ways that we can implement this.
+
+00:01:25.000 --> 00:01:30.000
+But I think the two most viable ways would be to use a trait or to just use a base class.
+
+00:01:30.000 --> 00:01:35.000
+And we've used a trait, let's use a base class just for kicks.
+
+00:01:35.000 --> 00:01:40.000
+So let's create a new controller.
+
+00:01:40.000 --> 00:01:45.000
+We'll use artisan to make the controller.
+
+00:01:45.000 --> 00:01:50.000
+We will version this API V1 and let's just call this API controller.
+
+00:01:50.000 --> 00:01:55.000
+We don't need to use any of the other flags.
+
+00:01:55.000 --> 00:02:00.000
+We just need basically an empty controller so that we can add this include method.
+
+00:02:00.000 --> 00:02:05.000
+And then we could use that in all of our other API controllers.
+
+00:02:05.000 --> 00:02:10.000
+So let's create this include.
+
+00:02:10.000 --> 00:02:15.000
+And there's probably a better word that we could use for the name of the method.
+
+00:02:15.000 --> 00:02:20.000
+But one of the hardest things to do is name things and I'm horrible at it.
+
+00:02:20.000 --> 00:02:25.000
+So we're just going to call it include.
+
+00:02:25.000 --> 00:02:30.000
+And we will accept a string, which let's call this relationship.
+
+00:02:31.000 --> 00:02:34.000
+So let's just call this relationship.
+
+00:02:34.000 --> 00:02:37.000
+We will say that it will return a Boolean value.
+
+00:02:37.000 --> 00:02:41.000
+So let's first of all get the include parameter.
+
+00:02:41.000 --> 00:02:48.000
+So we will do that by getting the include query parameter from the request.
+
+00:02:48.000 --> 00:02:52.000
+And let's check if we don't have that parameter,
+
+00:02:52.000 --> 00:02:56.000
+then there's really nothing to do because there's nothing to include.
+
+00:02:56.000 --> 00:03:01.000
+So we will return false and we're done if that's all that we need.
+
+00:03:01.000 --> 00:03:07.000
+However, we do need to check to see if the parameter that was provided
+
+00:03:07.000 --> 00:03:11.000
+is the same as the relationship that was passed to this method.
+
+00:03:11.000 --> 00:03:15.000
+Now I kind of want to think ahead, but I don't want to think too far ahead
+
+00:03:15.000 --> 00:03:18.000
+because I'm thinking that at some point in time,
+
+00:03:18.000 --> 00:03:22.000
+we might want to have the ability to include multiple relationships.
+
+00:03:22.000 --> 00:03:27.000
+So the client would provide a comma separated value for the relationships.
+
+00:03:27.000 --> 00:03:33.000
+I think it's good to plan for that, but we're not going to completely implement that.
+
+00:03:33.000 --> 00:03:35.000
+So let's do this.
+
+00:03:35.000 --> 00:03:39.000
+Let's say that we'll have the include values
+
+00:03:39.000 --> 00:03:43.000
+and we are going to take the value from the parameter
+
+00:03:43.000 --> 00:03:45.000
+and we're going to explode it.
+
+00:03:45.000 --> 00:03:48.000
+But we also need to normalize all of our strings.
+
+00:03:49.000 --> 00:03:56.000
+So let's convert this to lowercase so that then we can check to see
+
+00:03:56.000 --> 00:04:00.000
+if the provided relationship, which we will need to normalize
+
+00:04:00.000 --> 00:04:07.000
+as a lowercase string, is inside of the include values.
+
+00:04:07.000 --> 00:04:09.000
+So yeah, I think that that's going to work.
+
+00:04:09.000 --> 00:04:11.000
+Let's go back over this.
+
+00:04:11.000 --> 00:04:14.000
+So we will pass in the relationship.
+
+00:04:14.000 --> 00:04:19.000
+We will get the include query parameter from the URL.
+
+00:04:19.000 --> 00:04:22.000
+If that is not set, we return false.
+
+00:04:22.000 --> 00:04:27.000
+Otherwise, we explode that query parameter value,
+
+00:04:27.000 --> 00:04:29.000
+just kind of planning ahead a little bit,
+
+00:04:29.000 --> 00:04:32.000
+and we normalize that to a lowercase string
+
+00:04:32.000 --> 00:04:36.000
+so that then we can check to see if the provided relationship
+
+00:04:36.000 --> 00:04:41.000
+that we also convert to lowercase is inside of that array.
+
+00:04:41.000 --> 00:04:43.000
+Yeah, that looks great.
+
+00:04:43.000 --> 00:04:45.000
+Now we can go to our ticket controller.
+
+00:04:45.000 --> 00:04:50.000
+We can inherit the API controller, and that should work.
+
+00:04:50.000 --> 00:04:52.000
+So let's copy this code.
+
+00:04:52.000 --> 00:04:55.000
+Let's put this inside of our show method
+
+00:04:55.000 --> 00:04:57.000
+because we essentially want to do the same thing
+
+00:04:57.000 --> 00:05:01.000
+except that we just want to return a single ticket resource,
+
+00:05:01.000 --> 00:05:04.000
+which in this case we will call the load
+
+00:05:04.000 --> 00:05:09.000
+and then specify the name of the resource or the relationship there.
+
+00:05:09.000 --> 00:05:12.000
+So as far as that is concerned, we're good.
+
+00:05:12.000 --> 00:05:14.000
+We need to go to the ticket resource,
+
+00:05:14.000 --> 00:05:17.000
+and we need to conditionally show the includes
+
+00:05:17.000 --> 00:05:21.000
+only when we have a user to display.
+
+00:05:21.000 --> 00:05:24.000
+And thankfully, this is very easy to do
+
+00:05:24.000 --> 00:05:30.000
+because we have a method kind of like the win method that we used
+
+00:05:30.000 --> 00:05:33.000
+and the merge win method.
+
+00:05:33.000 --> 00:05:40.000
+We have a method that will check to see if we have a loaded relationship.
+
+00:05:40.000 --> 00:05:44.000
+So here we still have the includes.
+
+00:05:44.000 --> 00:05:47.000
+We are still newing up our user resource,
+
+00:05:47.000 --> 00:05:51.000
+but we aren't passing the user relationship.
+
+00:05:51.000 --> 00:05:56.000
+We are checking to see when that relationship is loaded.
+
+00:05:56.000 --> 00:06:00.000
+And when it is, then that resource will be loaded
+
+00:06:00.000 --> 00:06:04.000
+for the includes key inside of our JSON structure.
+
+00:06:04.000 --> 00:06:06.000
+Otherwise, it will be completely omitted.
+
+00:06:06.000 --> 00:06:08.000
+So let's test this out.
+
+00:06:08.000 --> 00:06:11.000
+Let's send the request for our tickets,
+
+00:06:11.000 --> 00:06:13.000
+and we see all of our tickets.
+
+00:06:13.000 --> 00:06:17.000
+If we scroll on down, we see the includes.
+
+00:06:17.000 --> 00:06:20.000
+Now let's remove the include,
+
+00:06:20.000 --> 00:06:23.000
+and let's see if that is still going to work.
+
+00:06:23.000 --> 00:06:25.000
+And yes, it does.
+
+00:06:25.000 --> 00:06:28.000
+We see the include is no longer listed there.
+
+00:06:28.000 --> 00:06:31.000
+And of course, if we go to the tickets URL,
+
+00:06:31.000 --> 00:06:35.000
+if we send the request without the includes, same thing.
+
+00:06:35.000 --> 00:06:37.000
+All we get are the tickets.
+
+00:06:37.000 --> 00:06:40.000
+However, let's include the author,
+
+00:06:40.000 --> 00:06:43.000
+and now we should see the included information
+
+00:06:43.000 --> 00:06:45.000
+for each individual ticket, and we do.
+
+00:06:45.000 --> 00:06:47.000
+So that's great.
+
+00:06:47.000 --> 00:06:51.000
+Now we just need to implement this for our users.
+
+00:06:51.000 --> 00:06:54.000
+So let's start with our user controller
+
+00:06:54.000 --> 00:06:58.000
+because we need to inherit the API controller.
+
+00:06:58.000 --> 00:07:00.000
+Then inside of our index method,
+
+00:07:00.000 --> 00:07:04.000
+we want to call our new include method.
+
+00:07:04.000 --> 00:07:08.000
+And in this case, we need to check the tickets resource.
+
+00:07:08.000 --> 00:07:11.000
+So if tickets are being requested,
+
+00:07:11.000 --> 00:07:15.000
+then we will return the user collection.
+
+00:07:15.000 --> 00:07:17.000
+We will call with tickets,
+
+00:07:17.000 --> 00:07:19.000
+which we need to set up that relationship, I believe.
+
+00:07:19.000 --> 00:07:20.000
+I don't think we've set that up.
+
+00:07:20.000 --> 00:07:22.000
+So we'll do that here in a minute.
+
+00:07:22.000 --> 00:07:23.000
+Let's copy this.
+
+00:07:23.000 --> 00:07:25.000
+Let's go down to the show method,
+
+00:07:25.000 --> 00:07:27.000
+and let's put that there.
+
+00:07:27.000 --> 00:07:31.000
+We will need to return a new user resource,
+
+00:07:31.000 --> 00:07:34.000
+and we will want to load the tickets.
+
+00:07:34.000 --> 00:07:36.000
+So let's go to our user model,
+
+00:07:36.000 --> 00:07:40.000
+and let's add that tickets relationship.
+
+00:07:40.000 --> 00:07:44.000
+So this is going to be a hasMany relationship,
+
+00:07:44.000 --> 00:07:49.000
+and we will simply return this hasMany tickets.
+
+00:07:49.000 --> 00:07:51.000
+So now the only other thing that we need to do
+
+00:07:51.000 --> 00:07:55.000
+is go to the user resource and essentially do the same thing.
+
+00:07:55.000 --> 00:07:57.000
+We need that include.
+
+00:07:57.000 --> 00:08:00.000
+So we will have includes.
+
+00:08:00.000 --> 00:08:02.000
+Now, this is a collection of tickets,
+
+00:08:02.000 --> 00:08:06.000
+so we will use our ticket resource collection method,
+
+00:08:06.000 --> 00:08:10.000
+and then we will call the whenLoaded method,
+
+00:08:10.000 --> 00:08:13.000
+passing in the tickets relationship,
+
+00:08:13.000 --> 00:08:15.000
+and that should get us what we need.
+
+00:08:15.000 --> 00:08:18.000
+So with that in place, let's go back to Postman.
+
+00:08:18.000 --> 00:08:20.000
+Let's go to our users request.
+
+00:08:20.000 --> 00:08:25.000
+Let's send a request without the include query parameter,
+
+00:08:25.000 --> 00:08:27.000
+and sure enough, we don't see that.
+
+00:08:27.000 --> 00:08:29.000
+We just have the user information,
+
+00:08:29.000 --> 00:08:33.000
+but let's include the tickets,
+
+00:08:33.000 --> 00:08:37.000
+and now we should see the ticket information included as well.
+
+00:08:37.000 --> 00:08:42.000
+Now, notice here, though, that we are getting the ticket resource,
+
+00:08:42.000 --> 00:08:44.000
+so we see the attributes,
+
+00:08:44.000 --> 00:08:47.000
+and, you know, I think that that's fine,
+
+00:08:47.000 --> 00:08:50.000
+except the relationships,
+
+00:08:50.000 --> 00:08:52.000
+we are getting the author information,
+
+00:08:52.000 --> 00:08:55.000
+which we already have the author information.
+
+00:08:55.000 --> 00:08:58.000
+So that might need to be something that we think about.
+
+00:08:58.000 --> 00:09:01.000
+I think for right now, we can leave that as is,
+
+00:09:01.000 --> 00:09:04.000
+but we might have to revisit that at some point.
+
+00:09:04.000 --> 00:09:06.000
+Let's do this.
+
+00:09:06.000 --> 00:09:10.000
+We need another request for an individual user,
+
+00:09:10.000 --> 00:09:14.000
+so let's create a new request for that.
+
+00:09:14.000 --> 00:09:17.000
+We'll call this simply getUser.
+
+00:09:17.000 --> 00:09:19.000
+The URL will be essentially the same,
+
+00:09:19.000 --> 00:09:22.000
+except that we will get the user with an ID of one.
+
+00:09:22.000 --> 00:09:25.000
+We don't need to set the authorization header,
+
+00:09:25.000 --> 00:09:29.000
+but we do need to add the accepts header,
+
+00:09:29.000 --> 00:09:32.000
+that is application JSON.
+
+00:09:32.000 --> 00:09:34.000
+So whenever we send this,
+
+00:09:34.000 --> 00:09:38.000
+we should get the individual user and includes
+
+00:09:38.000 --> 00:09:41.000
+and all of the tickets, and we do.
+
+00:09:41.000 --> 00:09:43.000
+So that is working great.
+
+00:09:43.000 --> 00:09:45.000
+Now, one other thing that I want to implement,
+
+00:09:45.000 --> 00:09:49.000
+you know, we have the links, but that's for the ticket.
+
+00:09:49.000 --> 00:09:52.000
+We need to add links for our user,
+
+00:09:52.000 --> 00:09:54.000
+and something else that I want to do,
+
+00:09:54.000 --> 00:09:57.000
+let's take a look at the paginated structure,
+
+00:09:57.000 --> 00:10:00.000
+and we'll see that, you know, there's this links,
+
+00:10:00.000 --> 00:10:03.000
+but it is slightly different than what we implemented
+
+00:10:03.000 --> 00:10:05.000
+from the JSON API.
+
+00:10:05.000 --> 00:10:07.000
+If we take a look at what we did, we have links,
+
+00:10:07.000 --> 00:10:09.000
+which is an array,
+
+00:10:09.000 --> 00:10:13.000
+and then there would be an object for each individual link,
+
+00:10:13.000 --> 00:10:18.000
+and what Laravel is giving us with the paginated results,
+
+00:10:18.000 --> 00:10:20.000
+links is just an object
+
+00:10:20.000 --> 00:10:23.000
+where the individual links are properties and values.
+
+00:10:23.000 --> 00:10:24.000
+So I want to follow along.
+
+00:10:24.000 --> 00:10:27.000
+I want everything to be consistent.
+
+00:10:27.000 --> 00:10:29.000
+So let's make a few changes.
+
+00:10:29.000 --> 00:10:32.000
+Let's go to our ticket resource,
+
+00:10:32.000 --> 00:10:34.000
+and let's change the links here.
+
+00:10:34.000 --> 00:10:37.000
+We don't need an array of arrays.
+
+00:10:37.000 --> 00:10:39.000
+We just need an array.
+
+00:10:39.000 --> 00:10:42.000
+We'll do the same thing for the user link,
+
+00:10:42.000 --> 00:10:45.000
+which we need to implement, which we can do now.
+
+00:10:45.000 --> 00:10:49.000
+Let's take the code for our ticket link,
+
+00:10:49.000 --> 00:10:51.000
+and let's just make a few changes here.
+
+00:10:51.000 --> 00:10:55.000
+So we want to use the users show route,
+
+00:10:55.000 --> 00:10:57.000
+the user key,
+
+00:10:57.000 --> 00:11:01.000
+and then the value will be simply user ID,
+
+00:11:01.000 --> 00:11:03.000
+and I think that's the only links
+
+00:11:03.000 --> 00:11:05.000
+inside of our ticket resource.
+
+00:11:05.000 --> 00:11:07.000
+So let's go to our user resource.
+
+00:11:07.000 --> 00:11:11.000
+Let's add in that links there.
+
+00:11:11.000 --> 00:11:16.000
+We will simply need to change this to use the users show,
+
+00:11:16.000 --> 00:11:19.000
+and then the key is user.
+
+00:11:19.000 --> 00:11:21.000
+All right, so that should get us.
+
+00:11:21.000 --> 00:11:25.000
+We are now successfully including information
+
+00:11:25.000 --> 00:11:28.000
+based upon the client's request.
+
+00:11:28.000 --> 00:11:32.000
+All they have to do is provide an include query parameter,
+
+00:11:32.000 --> 00:11:34.000
+specify what they want to include,
+
+00:11:34.000 --> 00:11:36.000
+and it will be included.
+
+00:11:36.000 --> 00:11:39.000
+Our links are all consistent now,
+
+00:11:39.000 --> 00:11:40.000
+and so in the next episode,
+
+00:11:40.000 --> 00:11:44.000
+we can look at how we can start querying and filtering data.
+

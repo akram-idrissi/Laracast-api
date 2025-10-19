@@ -1,0 +1,878 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:05.000
+We need to provide the ability for clients to filter results.
+
+00:00:05.000 --> 00:00:09.000
+And of course, the way that we can do that is through the query string.
+
+00:00:09.000 --> 00:00:14.000
+And we can have query string parameters that map directly to the attributes on our ticket.
+
+00:00:14.000 --> 00:00:19.000
+So for example, if we want just the completed tickets,
+
+00:00:19.000 --> 00:00:24.000
+we could use the status query string parameter, set the value to C,
+
+00:00:24.000 --> 00:00:27.000
+and that would give us our completed tickets.
+
+00:00:27.000 --> 00:00:32.000
+If we wanted the title or the created at,
+
+00:00:32.000 --> 00:00:35.000
+you know, any of the attributes that our ticket has,
+
+00:00:35.000 --> 00:00:40.000
+we could filter based upon that by just using the query string.
+
+00:00:40.000 --> 00:00:44.000
+We could also do something like this to where if we wanted both the completed
+
+00:00:44.000 --> 00:00:48.000
+and the canceled tickets, then we could do that.
+
+00:00:48.000 --> 00:00:54.000
+It adds flexibility to our API, but of course, with flexibility comes complexity.
+
+00:00:54.000 --> 00:00:58.000
+But it's easy enough to do, so we'll do that.
+
+00:00:58.000 --> 00:01:04.000
+Now, the most straightforward way that we can implement this is to just check to see
+
+00:01:04.000 --> 00:01:06.000
+if we have those values in the query string.
+
+00:01:06.000 --> 00:01:10.000
+And if so, then we can make that stuff work.
+
+00:01:10.000 --> 00:01:14.000
+But no, we don't want to do that because that is going to make our controllers very,
+
+00:01:14.000 --> 00:01:16.000
+very messy.
+
+00:01:16.000 --> 00:01:21.000
+And I don't even like this code that we have as far as including the author information.
+
+00:01:21.000 --> 00:01:26.000
+I would prefer to just have a single line of code so that we could do something like this
+
+00:01:26.000 --> 00:01:28.000
+to where we would use our ticket resource,
+
+00:01:28.000 --> 00:01:33.000
+and we would call a filter method on our model.
+
+00:01:33.000 --> 00:01:35.000
+And then we could pass in the filters.
+
+00:01:35.000 --> 00:01:40.000
+So this filters would have all of the query string parameter stuff,
+
+00:01:40.000 --> 00:01:45.000
+so that if it's a status or if it's the title or if it's the status and the title,
+
+00:01:45.000 --> 00:01:48.000
+you know, all of that stuff would be here.
+
+00:01:48.000 --> 00:01:51.000
+inside of the filters that we would pass to this filter method.
+
+00:01:51.000 --> 00:01:55.000
+And then we could just paginate it from there.
+
+00:01:55.000 --> 00:01:57.000
+And that would be it.
+
+00:01:57.000 --> 00:02:02.000
+All of the filtering, all of the including stuff would just be automatically done.
+
+00:02:02.000 --> 00:02:07.000
+And we could say that those filters will come from this ticket filter object
+
+00:02:07.000 --> 00:02:11.000
+that we would receive as an argument to the index method.
+
+00:02:11.000 --> 00:02:16.000
+And, you know, we could even do something like this to where this ticket filter
+
+00:02:17.000 --> 00:02:23.000
+class would have methods that map directly to our query string parameters
+
+00:02:23.000 --> 00:02:27.000
+so that we would have this status query string parameter
+
+00:02:27.000 --> 00:02:31.000
+that would actually effectively call a status method
+
+00:02:31.000 --> 00:02:36.000
+and it would work with whatever value was set for that query string parameter.
+
+00:02:36.000 --> 00:02:38.000
+So there's a lot of ways that we could do that.
+
+00:02:38.000 --> 00:02:40.000
+And I actually like that.
+
+00:02:40.000 --> 00:02:41.000
+So let's do this.
+
+00:02:41.000 --> 00:02:44.000
+Let's create this ticket filter class.
+
+00:02:44.000 --> 00:02:48.000
+I'm going to do this inside of the HTTP folder.
+
+00:02:48.000 --> 00:02:51.000
+And we'll create a new folder called filters.
+
+00:02:51.000 --> 00:02:54.000
+We need to version this with V1.
+
+00:02:54.000 --> 00:02:57.000
+And then that was ticketfilter.php.
+
+00:02:57.000 --> 00:03:02.000
+The namespace will be app.http.filters.v1.
+
+00:03:02.000 --> 00:03:05.000
+And then we will have our class of ticket filters
+
+00:03:05.000 --> 00:03:08.000
+so that here we would have the status method.
+
+00:03:08.000 --> 00:03:10.000
+We'll have the value passed to it.
+
+00:03:10.000 --> 00:03:12.000
+And then we could do something like this.
+
+00:03:12.000 --> 00:03:15.000
+We could say that we would have access to the query builder.
+
+00:03:15.000 --> 00:03:20.000
+And we would say where the status is the provided value.
+
+00:03:20.000 --> 00:03:24.000
+This doesn't take into account multiple status values,
+
+00:03:24.000 --> 00:03:26.000
+which we will address that later.
+
+00:03:26.000 --> 00:03:28.000
+But for right now, let's just make this work.
+
+00:03:28.000 --> 00:03:30.000
+So this means that we need this builder,
+
+00:03:30.000 --> 00:03:34.000
+but we could get this builder from here,
+
+00:03:34.000 --> 00:03:37.000
+this locally scoped filter method.
+
+00:03:37.000 --> 00:03:42.000
+So let's go to our ticket model and let's add that method.
+
+00:03:42.000 --> 00:03:46.000
+So we'll have public function scope filter.
+
+00:03:46.000 --> 00:03:51.000
+And we will get the query builder as the first argument here.
+
+00:03:51.000 --> 00:03:54.000
+And then from here, we'll get the ticket filter.
+
+00:03:54.000 --> 00:03:59.000
+And then we can say that our filters is going to have an apply method.
+
+00:03:59.000 --> 00:04:03.000
+And that's how we will supply the builder to our ticket filter.
+
+00:04:03.000 --> 00:04:07.000
+But, you know, we don't necessarily want to use ticket filter here
+
+00:04:07.000 --> 00:04:11.000
+because this filtering functionality is something that we would want to use
+
+00:04:11.000 --> 00:04:13.000
+for our tickets, maybe for our users,
+
+00:04:13.000 --> 00:04:18.000
+for really any resource that we would want to provide filtering capabilities for.
+
+00:04:18.000 --> 00:04:21.000
+So really we should have a base class,
+
+00:04:21.000 --> 00:04:23.000
+which we could just call query filter.
+
+00:04:23.000 --> 00:04:26.000
+So let's go ahead and let's create that as well.
+
+00:04:26.000 --> 00:04:31.000
+So, of course, this needs to be inside of the same folder as our ticket filter,
+
+00:04:31.000 --> 00:04:33.000
+but we'll have that.
+
+00:04:33.000 --> 00:04:39.000
+Let's go ahead and add the namespace, http filters v1.
+
+00:04:39.000 --> 00:04:41.000
+Then we will have our query filter class,
+
+00:04:41.000 --> 00:04:44.000
+but this needs to be abstract because we don't want to create
+
+00:04:44.000 --> 00:04:46.000
+just a query filter object.
+
+00:04:46.000 --> 00:04:50.000
+We want to use one of our specific versions like ticket filter.
+
+00:04:50.000 --> 00:04:54.000
+Let's go ahead and let's extend that query filter now that we have that.
+
+00:04:54.000 --> 00:04:58.000
+So our query filter, we know that we need the builder.
+
+00:04:58.000 --> 00:05:00.000
+So let's have protected builder.
+
+00:05:00.000 --> 00:05:06.000
+Then we will have that public apply method where we will get the builder supplied.
+
+00:05:06.000 --> 00:05:11.000
+And so here we will simply set this builder to the builder argument,
+
+00:05:11.000 --> 00:05:13.000
+and then we will return builder.
+
+00:05:13.000 --> 00:05:17.000
+And then in between these two statements is where the magic is going to happen
+
+00:05:17.000 --> 00:05:22.000
+because we could say that we are going to iterate over the request,
+
+00:05:22.000 --> 00:05:27.000
+and we could just do all here as key and value.
+
+00:05:27.000 --> 00:05:31.000
+So the keys are going to be the query string parameters.
+
+00:05:31.000 --> 00:05:35.000
+The values are, of course, going to be the values for those parameters.
+
+00:05:35.000 --> 00:05:41.000
+And then we could say that if the method exists on this object
+
+00:05:41.000 --> 00:05:45.000
+and the method name would be the key, the query string parameter,
+
+00:05:45.000 --> 00:05:49.000
+then we will simply just call that method and then pass in the value.
+
+00:05:49.000 --> 00:05:52.000
+The only thing is that we need access to the request here.
+
+00:05:52.000 --> 00:05:56.000
+So let's go ahead and let's add that request there.
+
+00:05:56.000 --> 00:05:59.000
+We can get this from the constructor.
+
+00:05:59.000 --> 00:06:02.000
+So we could say that we will get the request there,
+
+00:06:02.000 --> 00:06:07.000
+and then we will set this request equal to that request object.
+
+00:06:07.000 --> 00:06:09.000
+So that should work.
+
+00:06:09.000 --> 00:06:11.000
+I mean, we have all of the plumbing done.
+
+00:06:11.000 --> 00:06:14.000
+We do need to add use statements here.
+
+00:06:14.000 --> 00:06:17.000
+So let's do that for inside of our ticket.
+
+00:06:17.000 --> 00:06:21.000
+We also need that inside of our controller.
+
+00:06:21.000 --> 00:06:23.000
+But that should get us done.
+
+00:06:23.000 --> 00:06:28.000
+So let's go to Postman and let's get just the tickets that are completed.
+
+00:06:28.000 --> 00:06:31.000
+So we should see status is C. That's great.
+
+00:06:31.000 --> 00:06:34.000
+Status is C. Status is C. That's perfect.
+
+00:06:34.000 --> 00:06:36.000
+That's awesome. I love it.
+
+00:06:36.000 --> 00:06:38.000
+So that works.
+
+00:06:38.000 --> 00:06:44.000
+Now let's include, because we want to have that functionality as well, the user.
+
+00:06:44.000 --> 00:06:48.000
+Now, of course, we don't have that yet, but we could go back to our ticket filter
+
+00:06:48.000 --> 00:06:51.000
+and we could simply add that include method
+
+00:06:51.000 --> 00:06:56.000
+to where then we would simply return the builder with,
+
+00:06:56.000 --> 00:06:58.000
+and then that provided value.
+
+00:06:58.000 --> 00:07:02.000
+So now we should get not only the completed tickets,
+
+00:07:02.000 --> 00:07:06.000
+but we should get the user information there, and sure enough, we do.
+
+00:07:06.000 --> 00:07:09.000
+Let's make sure I'm getting the status as C.
+
+00:07:09.000 --> 00:07:11.000
+Yes, that's working just fine.
+
+00:07:11.000 --> 00:07:15.000
+Of course, however, we didn't say user, did we?
+
+00:07:15.000 --> 00:07:21.000
+We said include author, and that's going to make us make a few changes.
+
+00:07:21.000 --> 00:07:26.000
+But really, all we would need to do is change user to author here.
+
+00:07:26.000 --> 00:07:30.000
+We would specify the user ID as the foreign key.
+
+00:07:30.000 --> 00:07:34.000
+We do need to go to our ticket resource
+
+00:07:34.000 --> 00:07:39.000
+because we also said to load the user when it's loaded.
+
+00:07:39.000 --> 00:07:41.000
+So here we will say author.
+
+00:07:41.000 --> 00:07:44.000
+So with that done, let's try that now.
+
+00:07:44.000 --> 00:07:46.000
+We should see the same results.
+
+00:07:46.000 --> 00:07:47.000
+We have includes.
+
+00:07:47.000 --> 00:07:49.000
+Okay, so that's great.
+
+00:07:49.000 --> 00:07:55.000
+The only thing is now our query stream parameters are a little muddied
+
+00:07:55.000 --> 00:07:59.000
+because we have status, which is, of course, a filter,
+
+00:07:59.000 --> 00:08:02.000
+and then we have include, which isn't necessarily a filter.
+
+00:08:02.000 --> 00:08:05.000
+This is just adding extra information to the payload.
+
+00:08:05.000 --> 00:08:09.000
+So I want to be a little more explicit as to what is
+
+00:08:09.000 --> 00:08:11.000
+and what isn't a filter.
+
+00:08:11.000 --> 00:08:15.000
+So, for example, for our status, I would like to do something like this
+
+00:08:15.000 --> 00:08:18.000
+to where we have an actual filter query stream parameter,
+
+00:08:18.000 --> 00:08:22.000
+and it would look like an array to where we would be setting
+
+00:08:22.000 --> 00:08:27.000
+the filter array with the key of status equals C.
+
+00:08:27.000 --> 00:08:31.000
+And I know that it seems like we are adding a lot of complexity,
+
+00:08:31.000 --> 00:08:33.000
+and we are making things more complex,
+
+00:08:33.000 --> 00:08:36.000
+but a lot of that is being handled automatically for us
+
+00:08:36.000 --> 00:08:40.000
+because what this is actually going to do is something like this.
+
+00:08:40.000 --> 00:08:43.000
+We will have an array of our query stream parameters.
+
+00:08:43.000 --> 00:08:47.000
+So we will have one that has a key of include, which would be author.
+
+00:08:47.000 --> 00:08:49.000
+Then we would have another that would be filter,
+
+00:08:49.000 --> 00:08:53.000
+but this would be an array where we would have key value pairs.
+
+00:08:53.000 --> 00:08:56.000
+So we would have status would be C.
+
+00:08:56.000 --> 00:08:59.000
+Then if we wanted to also have a filter for the title,
+
+00:08:59.000 --> 00:09:03.000
+then we would have the title filter value there.
+
+00:09:03.000 --> 00:09:07.000
+If we also wanted to filter based upon the created at field,
+
+00:09:07.000 --> 00:09:09.000
+then we could do that just fine.
+
+00:09:09.000 --> 00:09:12.000
+And so it's going to organize it so that, yes,
+
+00:09:12.000 --> 00:09:15.000
+we have our query stream parameters,
+
+00:09:15.000 --> 00:09:18.000
+but for our filter, it's going to be an array.
+
+00:09:18.000 --> 00:09:21.000
+So we can essentially do the same thing that we did inside of query filter
+
+00:09:21.000 --> 00:09:23.000
+where we iterated over all of these.
+
+00:09:23.000 --> 00:09:27.000
+So this is iterating over all of our query stream parameters.
+
+00:09:27.000 --> 00:09:31.000
+So we could just add a protected method,
+
+00:09:31.000 --> 00:09:36.000
+which we could call filter because we have a filter query string parameter,
+
+00:09:36.000 --> 00:09:39.000
+and we know that it is getting an array.
+
+00:09:39.000 --> 00:09:42.000
+So then we could just essentially do this same thing,
+
+00:09:42.000 --> 00:09:47.000
+except that instead of iterating over all of the query stream parameters,
+
+00:09:47.000 --> 00:09:51.000
+we just iterate over everything inside of this array.
+
+00:09:51.000 --> 00:09:54.000
+We check if the method exists, and if so, then great.
+
+00:09:54.000 --> 00:09:56.000
+If not, then we don't care.
+
+00:09:56.000 --> 00:09:58.000
+So we will return builder there.
+
+00:09:58.000 --> 00:10:02.000
+So that means that our apply method is going to iterate over this array.
+
+00:10:02.000 --> 00:10:06.000
+It's going to look for an include method on our filter.
+
+00:10:06.000 --> 00:10:08.000
+It's going to find it, and it's going to include the author.
+
+00:10:08.000 --> 00:10:11.000
+It's then going to look for a method called filter.
+
+00:10:11.000 --> 00:10:15.000
+It's going to find that right inside of our query filter,
+
+00:10:15.000 --> 00:10:20.000
+and then that is going to iterate over this array of key value pairs.
+
+00:10:20.000 --> 00:10:22.000
+So we should be good to go.
+
+00:10:22.000 --> 00:10:27.000
+It's a simple change, but it's going to make our URL much more clear
+
+00:10:27.000 --> 00:10:30.000
+as to what is and what isn't a filter.
+
+00:10:30.000 --> 00:10:32.000
+So with that change, we should be able to send this.
+
+00:10:32.000 --> 00:10:36.000
+We should get the same result so that we are getting the completed tickets
+
+00:10:36.000 --> 00:10:38.000
+and only the completed tickets,
+
+00:10:38.000 --> 00:10:41.000
+and we are including the user information.
+
+00:10:41.000 --> 00:10:44.000
+So that's all well and good.
+
+00:10:44.000 --> 00:10:45.000
+Let's go back to our ticket filter,
+
+00:10:45.000 --> 00:10:48.000
+and let's finish implementing all of these things.
+
+00:10:48.000 --> 00:10:51.000
+So we want to be able to include multiple statuses
+
+00:10:51.000 --> 00:10:56.000
+so that if we wanted the completed and the canceled,
+
+00:10:56.000 --> 00:10:59.000
+we would just separate those status types
+
+00:10:59.000 --> 00:11:01.000
+or those status codes with a comma,
+
+00:11:01.000 --> 00:11:04.000
+which means we could do something like this,
+
+00:11:04.000 --> 00:11:07.000
+where we are going to have a like string.
+
+00:11:07.000 --> 00:11:10.000
+Not a like string, this is an in query, isn't it?
+
+00:11:10.000 --> 00:11:14.000
+So we're going to change this to where in the status,
+
+00:11:14.000 --> 00:11:17.000
+and since our value is now a comma separated value,
+
+00:11:17.000 --> 00:11:21.000
+we can call explode, and we will explode this string
+
+00:11:21.000 --> 00:11:24.000
+into an array based upon that comma,
+
+00:11:24.000 --> 00:11:27.000
+and that should give us the ability to find the tickets
+
+00:11:27.000 --> 00:11:30.000
+in the specified status codes.
+
+00:11:30.000 --> 00:11:35.000
+So now let's do the title, where we will have our value,
+
+00:11:35.000 --> 00:11:38.000
+but our title is a little bit different
+
+00:11:38.000 --> 00:11:42.000
+because we don't want to just say that the client has to know
+
+00:11:42.000 --> 00:11:44.000
+the full title.
+
+00:11:44.000 --> 00:11:46.000
+That really doesn't make sense.
+
+00:11:46.000 --> 00:11:50.000
+We should be able to allow them to specify some wildcards.
+
+00:11:50.000 --> 00:11:54.000
+So let's say that we want this E-U-M.
+
+00:11:54.000 --> 00:11:56.000
+I'm not going to try to pronounce that.
+
+00:11:56.000 --> 00:12:00.000
+I haven't had to do any Latin in a very, very long time,
+
+00:12:00.000 --> 00:12:03.000
+but let's say that for our filter,
+
+00:12:03.000 --> 00:12:06.000
+as long as it contains those three characters,
+
+00:12:06.000 --> 00:12:09.000
+we want that ticket in the list.
+
+00:12:09.000 --> 00:12:11.000
+So we can very easily do that.
+
+00:12:11.000 --> 00:12:16.000
+All we would need is to simply replace the asterisks
+
+00:12:16.000 --> 00:12:18.000
+with percent signs.
+
+00:12:18.000 --> 00:12:20.000
+So we can call string replace.
+
+00:12:20.000 --> 00:12:22.000
+We're changing the stars to the percent signs
+
+00:12:22.000 --> 00:12:26.000
+because that's what we need in order for a like query,
+
+00:12:26.000 --> 00:12:29.000
+and then we will return this builder
+
+00:12:29.000 --> 00:12:33.000
+where the title is like the like string.
+
+00:12:33.000 --> 00:12:35.000
+So that would work there.
+
+00:12:35.000 --> 00:12:38.000
+We could do something similar to the status
+
+00:12:38.000 --> 00:12:41.000
+for the created at.
+
+00:12:41.000 --> 00:12:46.000
+So we could say that the client could provide a single date
+
+00:12:46.000 --> 00:12:50.000
+or they could provide a comma-separated list of dates
+
+00:12:50.000 --> 00:12:52.000
+for a range.
+
+00:12:52.000 --> 00:12:54.000
+So we could do something like this
+
+00:12:54.000 --> 00:12:58.000
+to where we will explode, based upon a comma, the value.
+
+00:12:58.000 --> 00:13:02.000
+And if we have more than one date,
+
+00:13:02.000 --> 00:13:07.000
+then we know that we have a range that we need to filter.
+
+00:13:07.000 --> 00:13:11.000
+So we will return this builder where between,
+
+00:13:12.000 --> 00:13:17.000
+and we want the created at field between the provided dates.
+
+00:13:17.000 --> 00:13:20.000
+However, if we just have one date,
+
+00:13:20.000 --> 00:13:24.000
+then we just need to return this builder where date,
+
+00:13:24.000 --> 00:13:28.000
+and then we specify created at is the provided date,
+
+00:13:28.000 --> 00:13:30.000
+and that should work there.
+
+00:13:30.000 --> 00:13:32.000
+And since we have that, we can go ahead
+
+00:13:32.000 --> 00:13:35.000
+and we can also implement the updated at.
+
+00:13:35.000 --> 00:13:37.000
+I'm putting these in alphabetical order
+
+00:13:37.000 --> 00:13:40.000
+just because that's just me.
+
+00:13:40.000 --> 00:13:42.000
+So we have our updated at.
+
+00:13:42.000 --> 00:13:44.000
+We need to change the field here.
+
+00:13:44.000 --> 00:13:48.000
+So that is updated at, and that is updated at,
+
+00:13:48.000 --> 00:13:50.000
+but everything else should be fine.
+
+00:13:50.000 --> 00:13:52.000
+So let's try the title filter.
+
+00:13:52.000 --> 00:13:57.000
+We should get just the completed and canceled.
+
+00:13:57.000 --> 00:14:00.000
+So the title there, the status,
+
+00:14:00.000 --> 00:14:02.000
+that looks like that that works.
+
+00:14:02.000 --> 00:14:03.000
+Title status.
+
+00:14:03.000 --> 00:14:05.000
+Yeah, we are good there.
+
+00:14:05.000 --> 00:14:07.000
+Okay, so let's look at the dates.
+
+00:14:07.000 --> 00:14:08.000
+They probably have the same date
+
+00:14:08.000 --> 00:14:11.000
+since these were all generated on the same date.
+
+00:14:11.000 --> 00:14:13.000
+That's a little difficult.
+
+00:14:13.000 --> 00:14:16.000
+So let's change this to id.
+
+00:14:16.000 --> 00:14:20.000
+So, okay, we have, that was created on the second.
+
+00:14:20.000 --> 00:14:22.000
+I tell you what, let's just do this.
+
+00:14:22.000 --> 00:14:24.000
+Let's get rid of all of the other filters
+
+00:14:24.000 --> 00:14:27.000
+and let's just filter the created at,
+
+00:14:27.000 --> 00:14:32.000
+and we want the date of 2024, February 1st,
+
+00:14:32.000 --> 00:14:34.000
+and we should have one or two there,
+
+00:14:34.000 --> 00:14:36.000
+and it looks like we do.
+
+00:14:36.000 --> 00:14:38.000
+So that works fine.
+
+00:14:38.000 --> 00:14:45.000
+Let's do a range of 2024-02-03, 2024-02-05.
+
+00:14:45.000 --> 00:14:47.000
+That should give us one or two,
+
+00:14:47.000 --> 00:14:49.000
+but we see that we have a created at date
+
+00:14:49.000 --> 00:14:53.000
+of the third, of the fourth, and great.
+
+00:14:53.000 --> 00:14:55.000
+That worked fine as well.
+
+00:14:55.000 --> 00:14:58.000
+So we have our basic filters all set up and ready to go.
+
+00:14:58.000 --> 00:15:03.000
+We are able to filter all of the attributes on our ticket.
+
+00:15:03.000 --> 00:15:06.000
+We are also able to include the author information,
+
+00:15:06.000 --> 00:15:09.000
+and we are able to do all of that
+
+00:15:09.000 --> 00:15:12.000
+from our controller with one line of code.
+
+00:15:12.000 --> 00:15:14.000
+So now the question, at least to me,
+
+00:15:14.000 --> 00:15:17.000
+becomes how do we filter the tickets
+
+00:15:17.000 --> 00:15:19.000
+based upon the user information?
+
+00:15:19.000 --> 00:15:21.000
+So let's say, for example,
+
+00:15:21.000 --> 00:15:25.000
+we wanted the tickets that have a status of completed,
+
+00:15:25.000 --> 00:15:28.000
+but we only want those completed tickets
+
+00:15:28.000 --> 00:15:32.000
+that were submitted by the user with an ID of five.
+
+00:15:32.000 --> 00:15:35.000
+Well, we could add more filters here
+
+00:15:35.000 --> 00:15:37.000
+based upon the user information,
+
+00:15:37.000 --> 00:15:39.000
+but we also need to think about this,
+
+00:15:39.000 --> 00:15:42.000
+because if we have the ID of the user,
+
+00:15:42.000 --> 00:15:45.000
+we really shouldn't be going through the tickets.
+
+00:15:45.000 --> 00:15:48.000
+We should be going through the users.
+
+00:15:48.000 --> 00:15:53.000
+So if we wanted the tickets by the user with an ID of five,
+
+00:15:53.000 --> 00:15:55.000
+we should start there.
+
+00:15:55.000 --> 00:15:57.000
+And yes, we can include the tickets,
+
+00:15:57.000 --> 00:15:59.000
+but I think it would be great
+
+00:15:59.000 --> 00:16:02.000
+if we could also have relationships
+
+00:16:02.000 --> 00:16:04.000
+or have just tickets.
+
+00:16:04.000 --> 00:16:06.000
+I think tickets is going to be fine.
+
+00:16:06.000 --> 00:16:08.000
+That would give us the tickets
+
+00:16:08.000 --> 00:16:10.000
+that were submitted by that user,
+
+00:16:10.000 --> 00:16:13.000
+and then we could filter it from there.
+
+00:16:13.000 --> 00:16:16.000
+And we will look at how to do that in the next episode.
+

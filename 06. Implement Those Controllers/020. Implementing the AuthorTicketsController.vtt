@@ -1,0 +1,626 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:08.440
+We are primarily finished with the ticket controller.
+
+00:00:08.440 --> 00:00:13.060
+Now we need to focus on the author's ticket controller because the functionality
+
+00:00:13.060 --> 00:00:16.120
+is relatively the same, there's just a few differences.
+
+00:00:16.120 --> 00:00:20.680
+So we're gonna start with the store method because I think that this is probably
+
+00:00:20.680 --> 00:00:23.719
+where the majority of our changes are going to be.
+
+00:00:23.719 --> 00:00:29.080
+And the first change is I'm going to reorder these parameters to be
+
+00:00:29.080 --> 00:00:30.879
+consistent with everything else.
+
+00:00:30.879 --> 00:00:34.840
+Because if we look at the replace method and the update,
+
+00:00:34.840 --> 00:00:39.840
+the request object is the first parameter and it wasn't in that case.
+
+00:00:39.840 --> 00:00:41.560
+So that is done.
+
+00:00:41.560 --> 00:00:45.000
+And I think the majority of our changes are going to be inside of the store
+
+00:00:45.000 --> 00:00:46.080
+ticket request.
+
+00:00:46.080 --> 00:00:48.680
+Because if we take a look at the request itself,
+
+00:00:48.680 --> 00:00:51.880
+the author ID is now part of the URL.
+
+00:00:51.880 --> 00:00:56.680
+So it doesn't really make much sense to include that with the request.
+
+00:00:56.680 --> 00:01:01.000
+Although we could make the argument that in order to be completely consistent,
+
+00:01:01.000 --> 00:01:02.799
+yes, we need to include it with the request.
+
+00:01:02.799 --> 00:01:06.680
+But I don't think that we really need to do that.
+
+00:01:06.680 --> 00:01:11.160
+Because we are dealing with a resource for a given user.
+
+00:01:11.160 --> 00:01:12.559
+We already have that user.
+
+00:01:12.559 --> 00:01:14.519
+So let's do this.
+
+00:01:14.519 --> 00:01:19.919
+We will keep our rules the same except that now we don't really need to check
+
+00:01:19.919 --> 00:01:23.800
+what the route is because it doesn't matter what the route is.
+
+00:01:23.839 --> 00:01:26.080
+If we have just a typical user,
+
+00:01:26.080 --> 00:01:31.040
+they should only be able to create their own tickets and
+
+00:01:31.040 --> 00:01:33.320
+not create a ticket for someone else.
+
+00:01:33.320 --> 00:01:36.879
+So now we would just have that check for create own ticket.
+
+00:01:36.879 --> 00:01:42.720
+If so, then we make sure that the user ID is part of that validation rule and
+
+00:01:42.720 --> 00:01:43.519
+we're good to go.
+
+00:01:43.519 --> 00:01:48.720
+But now let's override the prepare for validation.
+
+00:01:48.720 --> 00:01:53.040
+Because the author ID is now going to be part of the URL.
+
+00:01:53.040 --> 00:01:57.720
+So what we will do is check to see what the route is.
+
+00:01:57.720 --> 00:02:02.680
+And if it is authors.tickets.store,
+
+00:02:02.680 --> 00:02:06.879
+then we will merge in the author ID.
+
+00:02:06.879 --> 00:02:08.759
+So this should work.
+
+00:02:08.759 --> 00:02:12.720
+We'll take the data relationships author data ID and
+
+00:02:12.720 --> 00:02:17.360
+we will set that to the data that was provided in the route.
+
+00:02:17.360 --> 00:02:19.360
+And that was simply just author.
+
+00:02:19.360 --> 00:02:22.720
+So that should be good as far as that is concerned.
+
+00:02:22.720 --> 00:02:25.720
+Which means that now inside of our author tickets controller,
+
+00:02:25.720 --> 00:02:30.360
+we just need to copy the code from our store method from the ticket controller.
+
+00:02:30.360 --> 00:02:33.960
+And I don't really think we need to make many changes here.
+
+00:02:33.960 --> 00:02:35.360
+So let's copy that.
+
+00:02:35.360 --> 00:02:36.399
+But that's the wrong method.
+
+00:02:36.399 --> 00:02:37.600
+Let's go to the store method.
+
+00:02:37.600 --> 00:02:38.960
+Let's copy that code.
+
+00:02:38.960 --> 00:02:41.720
+Let's paste it inside of the store method.
+
+00:02:41.720 --> 00:02:43.399
+And let's see about this.
+
+00:02:43.399 --> 00:02:46.039
+So our policy should be the same.
+
+00:02:46.039 --> 00:02:51.600
+We will attempt to create a new ticket with the mapped attributes.
+
+00:02:51.639 --> 00:02:56.320
+But that is going to be an issue because our mapped attributes is only going to
+
+00:02:56.320 --> 00:03:00.000
+iterate over the attributes from the JSON structure.
+
+00:03:00.000 --> 00:03:04.960
+Now we need to also include anything that we might need.
+
+00:03:04.960 --> 00:03:07.679
+In this case, it would be a parameter from the route.
+
+00:03:07.679 --> 00:03:12.440
+So what if we did something like this to where we still call mapped routes,
+
+00:03:12.440 --> 00:03:16.520
+but we could supply an additional attribute if we needed to.
+
+00:03:16.520 --> 00:03:21.199
+So we could say that we have this author that's part of the request.
+
+00:03:21.199 --> 00:03:24.479
+And we want to map that to user ID.
+
+00:03:24.479 --> 00:03:28.039
+So that means inside of our base ticket request,
+
+00:03:28.039 --> 00:03:31.039
+we can accept an array called other attributes.
+
+00:03:31.039 --> 00:03:33.440
+We can initialize it as an empty array.
+
+00:03:33.440 --> 00:03:38.199
+But then we can merge these two arrays together to where the first array is
+
+00:03:38.199 --> 00:03:42.320
+our normal array that we've been using with the JSON structure attributes,
+
+00:03:42.320 --> 00:03:44.399
+with the ticket model attributes.
+
+00:03:44.399 --> 00:03:46.679
+And then we merge in any other attributes.
+
+00:03:46.679 --> 00:03:52.000
+That way, anything that we supply as an argument would override anything
+
+00:03:52.000 --> 00:03:54.960
+from the original attribute map.
+
+00:03:54.960 --> 00:03:56.960
+And I think that that's perfect.
+
+00:03:56.960 --> 00:03:58.919
+So let's leave that as is.
+
+00:03:58.919 --> 00:04:03.000
+And that should be enough for our store method.
+
+00:04:03.000 --> 00:04:05.080
+Yeah, I think everything else will be fine.
+
+00:04:05.080 --> 00:04:07.720
+So let's move on to the replace method.
+
+00:04:07.720 --> 00:04:11.479
+So here we are fetching the ticket with a given ID.
+
+00:04:11.479 --> 00:04:15.800
+We are checking if that ticket user ID is the same as the author ID.
+
+00:04:15.800 --> 00:04:18.559
+And I don't know why I did it this way.
+
+00:04:18.559 --> 00:04:21.880
+Because really what we should have done is this,
+
+00:04:21.880 --> 00:04:27.519
+to where the ID of the ticket is going to be the same as the ticket ID.
+
+00:04:27.519 --> 00:04:33.440
+And then we'll also where the user ID is the provided author ID.
+
+00:04:33.440 --> 00:04:36.519
+Then we will call first or fail.
+
+00:04:36.519 --> 00:04:39.200
+That's a whole lot simpler.
+
+00:04:39.200 --> 00:04:42.679
+So we no longer have to check the user IDs.
+
+00:04:42.679 --> 00:04:44.959
+Everything else should be fine.
+
+00:04:44.959 --> 00:04:49.160
+Now, as far as mapped attributes, everything should be OK here
+
+00:04:49.160 --> 00:04:51.799
+because this is the replace request.
+
+00:04:51.799 --> 00:04:54.799
+And that is for the put.
+
+00:04:54.799 --> 00:04:57.959
+So if we are going to replace a resource,
+
+00:04:57.959 --> 00:05:02.480
+the request should include all of the information for that resource.
+
+00:05:02.480 --> 00:05:06.760
+So yeah, we don't need to change anything as far as the mapped attributes are concerned.
+
+00:05:06.760 --> 00:05:10.839
+The only thing we need to do is check our policy.
+
+00:05:10.839 --> 00:05:14.600
+So we'll say is able the replace policy.
+
+00:05:14.600 --> 00:05:16.359
+And then we will pass in the ticket.
+
+00:05:16.359 --> 00:05:19.160
+Now, let's do check that policy.
+
+00:05:19.160 --> 00:05:23.000
+However, we also need to set the policy class, don't we?
+
+00:05:23.000 --> 00:05:26.160
+So from our ticket controller, we will copy that line of code
+
+00:05:26.160 --> 00:05:29.839
+so that we can add that protected policy class.
+
+00:05:29.839 --> 00:05:34.559
+And now let's take a look at our replace policy.
+
+00:05:34.559 --> 00:05:39.279
+So here, yes, if the user can replace the ticket, then great.
+
+00:05:39.279 --> 00:05:43.399
+Except that we really should have just done that.
+
+00:05:43.440 --> 00:05:45.160
+That would have been a lot simpler.
+
+00:05:45.160 --> 00:05:47.519
+So there we go, nice and clean there.
+
+00:05:47.519 --> 00:05:51.320
+All right, so we are done with our store ticket requests.
+
+00:05:51.320 --> 00:05:55.480
+Our replace method, we are fetching the ticket.
+
+00:05:55.480 --> 00:05:58.720
+If it doesn't exist, then the model is not found.
+
+00:05:58.720 --> 00:06:04.440
+We check the policy, we update, and then we return the newly updated ticket.
+
+00:06:04.440 --> 00:06:05.720
+So that's great.
+
+00:06:05.720 --> 00:06:09.959
+Let's go ahead and let's copy, though, this authorization exception.
+
+00:06:09.959 --> 00:06:12.480
+And we need to change the text here.
+
+00:06:12.519 --> 00:06:15.359
+You are not authorized to create that resource.
+
+00:06:15.359 --> 00:06:18.239
+For replace, that text should be fine.
+
+00:06:18.239 --> 00:06:21.760
+You are not authorized to update that resource.
+
+00:06:21.760 --> 00:06:25.720
+And then we have the update method, which is going to be very similar.
+
+00:06:25.720 --> 00:06:29.519
+Let's grab this new code to where we fetch the ticket
+
+00:06:29.519 --> 00:06:31.760
+based upon the ID and the user ID.
+
+00:06:31.760 --> 00:06:35.279
+That way, we don't have to check those IDs anymore.
+
+00:06:35.279 --> 00:06:38.200
+The update method, you know, mapped attributes.
+
+00:06:38.200 --> 00:06:40.160
+Let's take a look at the request.
+
+00:06:40.200 --> 00:06:44.959
+So for a patch, the client needs to supply whatever attributes
+
+00:06:44.959 --> 00:06:46.399
+that they want to update.
+
+00:06:46.399 --> 00:06:49.359
+So if they want to update it, they need to include it.
+
+00:06:49.359 --> 00:06:52.959
+We don't need to have any other mapped attributes.
+
+00:06:52.959 --> 00:06:56.839
+We do, however, need to check our policy.
+
+00:06:56.839 --> 00:07:00.760
+So that is the update policy and the provided ticket.
+
+00:07:00.760 --> 00:07:03.720
+But, you know, let's check the update policy.
+
+00:07:03.720 --> 00:07:07.359
+And yes, if the user can update the ticket, then true.
+
+00:07:07.359 --> 00:07:11.279
+If they can update their own ticket, then we check the user IDs.
+
+00:07:11.279 --> 00:07:12.600
+Yeah, that's fine there.
+
+00:07:12.600 --> 00:07:17.160
+So we will update, return the newly updated resource.
+
+00:07:17.160 --> 00:07:19.480
+And that should be that.
+
+00:07:19.480 --> 00:07:23.640
+Let's, once again, copy this catch for the authorization exception.
+
+00:07:23.640 --> 00:07:26.839
+And let's move on to the destroy method.
+
+00:07:26.839 --> 00:07:29.839
+Once again, why did I think that this was a good idea?
+
+00:07:29.839 --> 00:07:33.880
+But this just goes to show, you know, code that we write,
+
+00:07:33.880 --> 00:07:37.679
+even though it does work, might not necessarily be the best thing.
+
+00:07:37.679 --> 00:07:38.799
+And it's okay.
+
+00:07:38.799 --> 00:07:39.920
+We can always go back.
+
+00:07:39.920 --> 00:07:41.320
+We can make changes.
+
+00:07:41.320 --> 00:07:44.679
+And I can't tell you how many times I've gone back to old code
+
+00:07:44.679 --> 00:07:47.679
+and I've thought, what in the world was I thinking?
+
+00:07:47.679 --> 00:07:49.920
+I could have done this much simpler.
+
+00:07:49.920 --> 00:07:51.640
+And this is just one of those times.
+
+00:07:51.640 --> 00:07:53.359
+So we fetch that ticket.
+
+00:07:53.359 --> 00:07:55.959
+We need to check our policy.
+
+00:07:55.959 --> 00:07:59.559
+And yeah, there's nothing to update.
+
+00:07:59.559 --> 00:08:01.480
+So we don't need to map anything.
+
+00:08:01.480 --> 00:08:03.320
+We don't need to validate anything.
+
+00:08:03.320 --> 00:08:05.480
+Yeah, everything should be fine there.
+
+00:08:05.480 --> 00:08:09.959
+We do need to, once again, catch that authorization exception
+
+00:08:09.959 --> 00:08:14.480
+so that we can say that you're not authorized to delete that resource.
+
+00:08:14.480 --> 00:08:18.600
+But just to be thorough, let's check our delete policy.
+
+00:08:18.600 --> 00:08:21.720
+And yep, everything is okay there.
+
+00:08:21.720 --> 00:08:24.239
+So now let's do some tests.
+
+00:08:24.239 --> 00:08:27.519
+So let's start with our POST request.
+
+00:08:27.519 --> 00:08:31.040
+And we are signed in with the user with an ID of one.
+
+00:08:31.040 --> 00:08:35.320
+So let's try to create a new ticket for the user with an ID of two.
+
+00:08:35.320 --> 00:08:38.520
+We should get our validation response.
+
+00:08:38.520 --> 00:08:42.239
+That is not the validation response that I was expecting.
+
+00:08:42.239 --> 00:08:45.960
+Data relationships author data ID field is required.
+
+00:08:45.960 --> 00:08:51.320
+Well, I would have thought that, yeah, we included that.
+
+00:08:51.320 --> 00:08:53.919
+So let's go to the store ticket request.
+
+00:08:53.919 --> 00:08:56.359
+You know, that's obviously not working.
+
+00:08:56.359 --> 00:08:58.479
+So let's do this.
+
+00:08:58.479 --> 00:09:03.039
+Let's say that we are going to have our author ID attribute.
+
+00:09:03.039 --> 00:09:07.159
+And this is going to change based upon the route.
+
+00:09:07.159 --> 00:09:10.599
+So if the route is tickets.store,
+
+00:09:10.599 --> 00:09:14.359
+then the ID is going to be what we expect from the JSON structure.
+
+00:09:14.359 --> 00:09:17.080
+Otherwise, it's going to be simply author.
+
+00:09:17.080 --> 00:09:22.239
+All right, so let's copy this so that we can put that there.
+
+00:09:22.239 --> 00:09:27.479
+Then we will say that the author ID attribute is going to be used here.
+
+00:09:27.520 --> 00:09:32.599
+And we need to update that same rule there.
+
+00:09:32.599 --> 00:09:35.840
+And then we will change this to simply author.
+
+00:09:35.840 --> 00:09:37.640
+And so now let's see if that's going to work.
+
+00:09:37.640 --> 00:09:42.080
+We should hopefully get our yes, the author field must be one.
+
+00:09:42.080 --> 00:09:43.559
+So that's perfect.
+
+00:09:43.559 --> 00:09:46.320
+So let's now try to create this.
+
+00:09:46.320 --> 00:09:48.159
+We have a new ticket.
+
+00:09:48.159 --> 00:09:49.760
+This is another ticket.
+
+00:09:49.760 --> 00:09:51.880
+Okay, let's send that request.
+
+00:09:51.880 --> 00:09:55.840
+We can see that that was indeed created just as a sanity check.
+
+00:09:55.840 --> 00:09:59.479
+Let's try to create a normal ticket from our tickets controller.
+
+00:09:59.479 --> 00:10:02.039
+And we'll just have some text here.
+
+00:10:02.039 --> 00:10:04.919
+It doesn't matter what it is, but we will create that.
+
+00:10:04.919 --> 00:10:06.760
+Sure enough, that was created.
+
+00:10:06.760 --> 00:10:09.559
+Let's try to create it for the user with an ID of two.
+
+00:10:09.559 --> 00:10:12.599
+We should get our validation error, and we do.
+
+00:10:12.599 --> 00:10:15.200
+Okay, so POST request works fine.
+
+00:10:15.200 --> 00:10:20.320
+The PUT request, we can't test with this user, but it should be fine.
+
+00:10:20.320 --> 00:10:22.640
+Let's do the PATCH request.
+
+00:10:22.640 --> 00:10:25.719
+And I think we have the ticket with an ID of two.
+
+00:10:25.719 --> 00:10:28.880
+So let's try to change that.
+
+00:10:28.880 --> 00:10:30.559
+We will send that request.
+
+00:10:30.559 --> 00:10:31.760
+Looks like that that worked.
+
+00:10:31.760 --> 00:10:35.679
+But let's try for a ticket that doesn't belong to this user,
+
+00:10:35.679 --> 00:10:37.400
+and ticket cannot be found.
+
+00:10:37.400 --> 00:10:39.159
+So that's okay.
+
+00:10:39.159 --> 00:10:39.880
+That's good.
+
+00:10:39.880 --> 00:10:42.880
+And now we just need to delete one.
+
+00:10:42.880 --> 00:10:48.440
+And let's delete, let's see, whatever ticket that we just created.
+
+00:10:48.440 --> 00:10:50.239
+ID of 105.
+
+00:10:50.239 --> 00:10:55.640
+Let's first of all try to delete a ticket that doesn't belong to this user.
+
+00:10:55.760 --> 00:10:59.679
+So we see that the, okay, that's, oh, wait.
+
+00:10:59.679 --> 00:11:01.479
+Yeah, that was right.
+
+00:11:01.479 --> 00:11:06.880
+Okay, so it works, and that works too.
+
+00:11:06.880 --> 00:11:11.239
+So I deleted the ticket with an ID of two, which is unfortunate
+
+00:11:11.239 --> 00:11:15.320
+because that was easy enough to remember, but obviously not easy enough to remember
+
+00:11:15.320 --> 00:11:19.200
+that that was not the one that I needed to update.
+
+00:11:19.200 --> 00:11:20.440
+Okay, so there we go.
+
+00:11:20.440 --> 00:11:26.119
+We have implemented our ticket controller and the author tickets controller.
+
+00:11:26.119 --> 00:11:30.840
+So we can now focus on implementing our user management.
+

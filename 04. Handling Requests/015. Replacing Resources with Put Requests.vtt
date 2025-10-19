@@ -1,0 +1,683 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:09.220
+The update method handles two types of requests.
+
+00:00:09.220 --> 00:00:15.320
+The first is the patch request, which is what we typically think of for updating something.
+
+00:00:15.320 --> 00:00:20.719
+We would fetch a ticket, then update maybe the title or the description, maybe both,
+
+00:00:20.719 --> 00:00:21.719
+doesn't matter.
+
+00:00:21.719 --> 00:00:26.480
+The idea is that we're just updating a ticket with whatever information that we have.
+
+00:00:26.480 --> 00:00:31.920
+And then there is the put request, which is a replacement, basically.
+
+00:00:31.920 --> 00:00:38.520
+We fetch a ticket, then we replace all of the data in all of the columns for that ticket.
+
+00:00:38.520 --> 00:00:39.520
+And that's it.
+
+00:00:39.520 --> 00:00:40.820
+We are replacing something.
+
+00:00:40.820 --> 00:00:46.200
+So I tend to think of these as two completely different things, because yes, they can be
+
+00:00:46.200 --> 00:00:53.439
+both classified as updating, but really we have an update and then we have a replace.
+
+00:00:53.439 --> 00:00:59.160
+And so I like to break this up into two separate methods, update and replace.
+
+00:00:59.160 --> 00:01:05.040
+And we would have a replace ticket request so that we could replace the ticket ID.
+
+00:01:05.040 --> 00:01:10.260
+And of course, we want the ticket ID here so that we can control the response.
+
+00:01:10.260 --> 00:01:17.820
+So that if the ticket doesn't exist, Laravel isn't going to use its default 404.
+
+00:01:17.820 --> 00:01:19.919
+We get to supply that 404.
+
+00:01:19.919 --> 00:01:22.440
+And of course, there are different ways of doing that.
+
+00:01:22.440 --> 00:01:25.559
+But this is just the most straightforward thing.
+
+00:01:25.559 --> 00:01:26.779
+It's right here in the code.
+
+00:01:26.779 --> 00:01:30.959
+We know exactly what's going on and there's a lot to be said about that.
+
+00:01:30.959 --> 00:01:39.000
+So what I want to do in this episode is change this so that our replace method is going to
+
+00:01:39.000 --> 00:01:44.080
+handle the put request and we will implement the replace method both here on the ticket
+
+00:01:44.080 --> 00:01:47.900
+controller and the author's ticket controller.
+
+00:01:47.900 --> 00:01:50.699
+So let's start with this replace ticket request.
+
+00:01:50.699 --> 00:01:56.480
+And really the easiest thing that we can do is take our store ticket request.
+
+00:01:56.480 --> 00:02:01.000
+Let's copy that, rename the copy to replace ticket request.
+
+00:02:01.000 --> 00:02:06.919
+And the idea here is that replacing something is very much like creating something, except
+
+00:02:06.919 --> 00:02:11.960
+that we have to have a ticket already in the database.
+
+00:02:11.960 --> 00:02:16.039
+But everything else is going to be the same except for our rules here.
+
+00:02:16.039 --> 00:02:21.580
+Because in the case of a replacement, we need to be sure that we have all of these
+
+00:02:21.580 --> 00:02:26.899
+attributes because we are going to be replacing all of these attributes with whatever was
+
+00:02:26.899 --> 00:02:28.820
+supplied in the request.
+
+00:02:28.820 --> 00:02:33.919
+So here we want to be sure that we have a title, description, status, and the author
+
+00:02:33.919 --> 00:02:34.919
+ID.
+
+00:02:34.919 --> 00:02:40.660
+If we wanted to be real sticklers about this, we could also say that we also need the date
+
+00:02:40.660 --> 00:02:43.639
+fields, the created at and modified at.
+
+00:02:43.639 --> 00:02:46.820
+But I think this is going to be fine for us there.
+
+00:02:46.820 --> 00:02:52.779
+We also get the benefit of having this messages method already given to us so that we can
+
+00:02:52.779 --> 00:02:57.100
+use our custom error message for invalid statuses.
+
+00:02:57.100 --> 00:03:01.220
+So as far as that is concerned, yeah, we are good to go.
+
+00:03:01.220 --> 00:03:03.820
+So let's go back to our ticket controller.
+
+00:03:03.820 --> 00:03:07.960
+Let's add a use statement here, but then we need to set up the routes.
+
+00:03:07.960 --> 00:03:11.419
+So let's go to our API V1 file.
+
+00:03:11.419 --> 00:03:15.039
+And we're going to clean this up a little bit because for one thing, notice that every
+
+00:03:15.039 --> 00:03:19.279
+one of these lines of code starts with route middleware auth sanctum.
+
+00:03:19.279 --> 00:03:24.080
+And we are going to be adding in more entries here because whenever we set up the routes
+
+00:03:24.080 --> 00:03:30.839
+for our tickets controller, we are going to chain the except method so that we can set
+
+00:03:30.839 --> 00:03:37.839
+up the routes except for the update route so that then we can come in and say that for
+
+00:03:37.839 --> 00:03:42.460
+a put request, we want tickets slash ticket.
+
+00:03:42.460 --> 00:03:48.580
+And that is going to be on our ticket controller and the replace method.
+
+00:03:48.580 --> 00:03:54.619
+And whenever we add the routes for the patch requests, and then we do the same thing for
+
+00:03:54.619 --> 00:03:57.380
+the author's ticket, it's just going to get messy.
+
+00:03:57.380 --> 00:03:58.460
+So let's do this.
+
+00:03:58.460 --> 00:04:02.539
+Let's go ahead and let's group these together so that we'll go ahead and call middleware
+
+00:04:02.539 --> 00:04:05.740
+and we'll use the auth sanctum middleware.
+
+00:04:06.039 --> 00:04:12.479
+Then we will group all of these together so that we can take all of these routes and we
+
+00:04:12.479 --> 00:04:16.239
+can get rid of what we call the middleware method.
+
+00:04:16.239 --> 00:04:19.399
+And that's going to make this a lot cleaner.
+
+00:04:19.399 --> 00:04:25.040
+So with this in place, we will be able to go to Postman and set up our requests for
+
+00:04:25.040 --> 00:04:26.739
+our put request.
+
+00:04:26.739 --> 00:04:34.079
+So just like our request class, let's duplicate our post here because this already has a body
+
+00:04:34.079 --> 00:04:37.380
+set up and we will need a body for our puts request.
+
+00:04:37.380 --> 00:04:44.200
+So let's change the name to put ticket and we'll change the type to a put request.
+
+00:04:44.200 --> 00:04:46.820
+We do need a specific ticket here.
+
+00:04:46.820 --> 00:04:50.679
+So let's just use, well, no, let's create a new one.
+
+00:04:50.679 --> 00:04:53.820
+But I guess first we need to make sure that this is going to work, don't we?
+
+00:04:53.820 --> 00:05:01.100
+So let's go to our ticket controller and let's just return replace so that we can send this
+
+00:05:01.100 --> 00:05:02.100
+request.
+
+00:05:02.100 --> 00:05:03.100
+We should get replace.
+
+00:05:03.100 --> 00:05:04.100
+Yes, we do.
+
+00:05:04.100 --> 00:05:06.019
+So we are good to go there.
+
+00:05:06.019 --> 00:05:08.739
+So now let's implement this.
+
+00:05:08.739 --> 00:05:14.260
+So the first thing that we want to do, well, really, you know, since replacing is a lot
+
+00:05:14.260 --> 00:05:18.540
+like creating, we can take the code for our store method.
+
+00:05:18.540 --> 00:05:24.519
+Let's just copy everything here and we'll use that as a basis for our replace method
+
+00:05:24.519 --> 00:05:29.700
+so that the first thing that we will need to do is try to find the ticket with this
+
+00:05:29.700 --> 00:05:30.899
+ID.
+
+00:05:30.899 --> 00:05:32.660
+We don't need the user here.
+
+00:05:32.720 --> 00:05:39.660
+So we will have our ticket, we'll call find or fail, and then pass in that ticket ID.
+
+00:05:39.660 --> 00:05:45.179
+Now in case the ticket doesn't exist, we need a different message here.
+
+00:05:45.179 --> 00:05:50.600
+So let's just grab this line from the show method so that if the ticket doesn't exist,
+
+00:05:50.600 --> 00:05:53.100
+we say that the ticket cannot be found.
+
+00:05:53.100 --> 00:05:59.660
+Otherwise, we are going to create this model and we won't actually create the model.
+
+00:05:59.660 --> 00:06:02.820
+What we'll do is we will update the ticket.
+
+00:06:02.820 --> 00:06:05.140
+So we will call tickets update.
+
+00:06:05.140 --> 00:06:10.019
+We will pass in the model that will update all of the columns because we have all of
+
+00:06:10.019 --> 00:06:11.019
+the columns.
+
+00:06:11.019 --> 00:06:16.940
+Our request class is going to make sure that and we don't want to create that.
+
+00:06:16.940 --> 00:06:21.540
+We just want to return a new ticket resource with the provided ticket.
+
+00:06:21.540 --> 00:06:25.940
+So that should, yeah, I think that will work just fine.
+
+00:06:25.940 --> 00:06:27.299
+So let's test this out.
+
+00:06:27.299 --> 00:06:31.179
+Let's go back to Postman and let's first of all create a new ticket.
+
+00:06:31.179 --> 00:06:36.059
+So let's call this replace this title.
+
+00:06:36.059 --> 00:06:40.899
+Then for the description, we will have replace this description.
+
+00:06:40.899 --> 00:06:44.880
+For the status, we'll set that as A for active.
+
+00:06:44.880 --> 00:06:49.380
+For the author ID, let's just use the author ID of one.
+
+00:06:49.380 --> 00:06:52.220
+So this should create a new ticket.
+
+00:06:52.220 --> 00:06:54.440
+We should get the response, we do.
+
+00:06:54.440 --> 00:06:56.380
+We have an ID of 101.
+
+00:06:56.380 --> 00:06:59.299
+And so now we can go to our put request.
+
+00:06:59.299 --> 00:07:02.260
+Our ID is going to be 101.
+
+00:07:02.260 --> 00:07:05.380
+And then we just need to make some modifications here.
+
+00:07:05.380 --> 00:07:08.880
+So for our title, we want to change that.
+
+00:07:08.880 --> 00:07:11.339
+We can say changed title.
+
+00:07:11.339 --> 00:07:15.220
+The description can say changed description.
+
+00:07:15.220 --> 00:07:16.540
+Let's change the status.
+
+00:07:16.540 --> 00:07:18.940
+We're just going to change everything here.
+
+00:07:18.940 --> 00:07:20.899
+We'll change the status to completed.
+
+00:07:20.899 --> 00:07:27.579
+I tell you what, let's take out the author ID and let's try to send this request.
+
+00:07:27.579 --> 00:07:29.859
+We should get a validation error.
+
+00:07:29.859 --> 00:07:34.540
+So hopefully we do, yes, that the author ID is not provided.
+
+00:07:34.540 --> 00:07:36.660
+So let's add that back.
+
+00:07:36.660 --> 00:07:38.059
+We will send that request.
+
+00:07:38.059 --> 00:07:39.739
+It should update.
+
+00:07:39.739 --> 00:07:40.899
+So there we have our ticket.
+
+00:07:40.899 --> 00:07:44.420
+We have our attributes, titles, status.
+
+00:07:44.420 --> 00:07:46.779
+The description is missing.
+
+00:07:46.779 --> 00:07:48.019
+Why is that?
+
+00:07:48.019 --> 00:07:51.299
+The author ID, did we change the author ID?
+
+00:07:51.299 --> 00:07:52.140
+Yep, we did.
+
+00:07:52.140 --> 00:07:53.260
+We changed that to two.
+
+00:07:53.260 --> 00:07:56.179
+Okay, so that worked.
+
+00:07:56.179 --> 00:08:00.899
+I tell you what, let's get that ticket that was ID of 101.
+
+00:08:00.899 --> 00:08:02.779
+Let's look at the description.
+
+00:08:02.779 --> 00:08:06.540
+We get the description and that was at least changed.
+
+00:08:06.540 --> 00:08:09.899
+So why don't we get the description here?
+
+00:08:09.899 --> 00:08:14.619
+Oh, yes.
+
+00:08:14.619 --> 00:08:19.459
+Inside of our ticket resource, we have this right here.
+
+00:08:19.459 --> 00:08:23.859
+We are only showing the description when the route is tickets show.
+
+00:08:23.859 --> 00:08:29.940
+And that's not going to work because we need to be able to show it not just for the show,
+
+00:08:29.940 --> 00:08:35.460
+but for the replace route that we just created.
+
+00:08:35.460 --> 00:08:37.219
+So we're going to need to change this.
+
+00:08:37.219 --> 00:08:38.659
+In fact, let's reverse this.
+
+00:08:38.659 --> 00:08:44.580
+Let's say that we want to include the description if the route is not,
+
+00:08:44.580 --> 00:08:46.299
+and then we will have our list.
+
+00:08:46.299 --> 00:08:51.619
+So we primarily didn't want to show it for the tickets index,
+
+00:08:51.619 --> 00:08:58.500
+but we also don't want to show it for the author's tickets index.
+
+00:08:58.500 --> 00:09:05.659
+That is for whenever we make a request to get a particular user or a particular author
+
+00:09:05.659 --> 00:09:06.979
+and get their tickets.
+
+00:09:07.020 --> 00:09:11.820
+So we don't want to show the description there because that's essentially the same thing
+
+00:09:11.820 --> 00:09:17.780
+as the index of our tickets, except that now this is scoped to the authors.
+
+00:09:17.780 --> 00:09:21.739
+So we don't want the description for the ticket index.
+
+00:09:21.739 --> 00:09:25.340
+We don't want it for the author's ticket index.
+
+00:09:25.340 --> 00:09:33.820
+And I guess we don't want to show it here for whenever we get our authors
+
+00:09:33.820 --> 00:09:37.940
+and we include the tickets.
+
+00:09:37.940 --> 00:09:39.419
+So let's see if we get the description.
+
+00:09:39.419 --> 00:09:42.219
+I'm pretty sure we will get the descriptions there.
+
+00:09:42.219 --> 00:09:43.859
+Oh, no, we won't.
+
+00:09:43.859 --> 00:09:48.260
+Okay, so let's leave that as is.
+
+00:09:48.260 --> 00:09:52.299
+If the route is not the tickets index or the author's tickets index,
+
+00:09:52.299 --> 00:09:54.340
+then we will include the description.
+
+00:09:54.340 --> 00:09:58.580
+Okay, so with that in place, let's go back to our put
+
+00:09:58.580 --> 00:10:01.619
+and let's make some more modifications here.
+
+00:10:01.619 --> 00:10:06.140
+So we'll say changed title to, changed description to.
+
+00:10:06.140 --> 00:10:09.460
+Let's say that the status is going to be canceled now.
+
+00:10:09.460 --> 00:10:10.979
+We'll leave the author ID alone.
+
+00:10:10.979 --> 00:10:12.059
+So we will send that.
+
+00:10:12.059 --> 00:10:14.380
+We should get a response that includes the description.
+
+00:10:14.380 --> 00:10:15.700
+Perfect.
+
+00:10:15.700 --> 00:10:20.219
+All right, so now we just need to implement the same functionality,
+
+00:10:20.219 --> 00:10:24.700
+but for our author ticket controller.
+
+00:10:24.700 --> 00:10:26.460
+So let's close some of these files.
+
+00:10:26.460 --> 00:10:29.619
+I don't think we need anything in the ticket resource anymore.
+
+00:10:29.619 --> 00:10:30.820
+So let's close that.
+
+00:10:30.820 --> 00:10:34.780
+Let's copy our replace method here.
+
+00:10:34.780 --> 00:10:37.140
+We're just going to straight up copy and paste that
+
+00:10:37.140 --> 00:10:40.659
+into our author tickets controller.
+
+00:10:40.659 --> 00:10:43.700
+And let's change the parameters.
+
+00:10:43.700 --> 00:10:48.619
+So of course, we need a use statement for our replace ticket requests.
+
+00:10:48.619 --> 00:10:52.380
+Then we will have the author ID.
+
+00:10:52.380 --> 00:10:55.020
+Then we will have the ticket ID.
+
+00:10:55.020 --> 00:10:58.739
+So we essentially want to do the same thing to where we fetch the ticket,
+
+00:10:58.739 --> 00:11:04.179
+but then we want to make sure that the ticket belongs to that user.
+
+00:11:04.179 --> 00:11:07.140
+So we did that inside of the destroy method
+
+00:11:07.140 --> 00:11:11.299
+to where we checked if the ticket belonged to the user.
+
+00:11:11.299 --> 00:11:16.179
+Now, one option, it's not really an option
+
+00:11:16.179 --> 00:11:19.859
+because we are doing this so that we can control the response.
+
+00:11:19.859 --> 00:11:25.419
+But it would be nice if we could use a scoped thing here
+
+00:11:25.419 --> 00:11:28.979
+for our nested controller so that we could say
+
+00:11:28.979 --> 00:11:32.460
+that our ticket is scoped to the authors.
+
+00:11:32.460 --> 00:11:34.739
+But, you know, this is fine.
+
+00:11:34.739 --> 00:11:35.700
+This is fine.
+
+00:11:35.700 --> 00:11:39.140
+OK, so let's go back to our author tickets controller.
+
+00:11:39.140 --> 00:11:40.780
+And we don't want to delete.
+
+00:11:40.780 --> 00:11:45.539
+We don't want our message saying that anything was successful.
+
+00:11:45.539 --> 00:11:50.179
+We just want to check if the ticket user ID is the author ID,
+
+00:11:50.179 --> 00:11:51.419
+then we will do the same thing.
+
+00:11:51.419 --> 00:11:56.219
+We will build this model array so that we can update the ticket.
+
+00:11:56.219 --> 00:12:00.460
+And then we will return that ticket response.
+
+00:12:00.460 --> 00:12:05.539
+Although, you know, we should do something in case if this fails.
+
+00:12:05.539 --> 00:12:08.979
+I just don't know what I want to do yet.
+
+00:12:08.979 --> 00:12:10.219
+So let's just add a to do.
+
+00:12:10.219 --> 00:12:13.700
+Ticket doesn't belong to user.
+
+00:12:13.700 --> 00:12:14.900
+OK.
+
+00:12:14.900 --> 00:12:19.539
+So with that in place, we should be able to come to our users collection.
+
+00:12:19.539 --> 00:12:26.539
+Let's duplicate our post request here so that we will have our put user ticket.
+
+00:12:26.539 --> 00:12:30.059
+Let's change the request to a put request.
+
+00:12:30.059 --> 00:12:34.059
+And here, let's say we will get user.
+
+00:12:34.059 --> 00:12:36.539
+Let's just get the user ID of one.
+
+00:12:36.539 --> 00:12:39.460
+And the ticket is going to be an ID of 20.
+
+00:12:39.460 --> 00:12:46.580
+So for our put user ticket, author slash one slash tickets slash ID of 20.
+
+00:12:46.580 --> 00:12:48.460
+So we have the body here.
+
+00:12:48.460 --> 00:12:50.460
+Let's change this.
+
+00:12:50.460 --> 00:12:51.940
+What do we have?
+
+00:12:51.940 --> 00:12:53.340
+OK, we have some Latin here.
+
+00:12:53.340 --> 00:12:58.059
+So for the title, we'll say put request works.
+
+00:12:58.059 --> 00:13:02.659
+The description is implement replace method.
+
+00:13:02.659 --> 00:13:05.140
+The status, let's complete it.
+
+00:13:05.140 --> 00:13:08.780
+And we don't have the user, but let's just test it once again.
+
+00:13:08.780 --> 00:13:11.780
+Method update does not exist.
+
+00:13:11.780 --> 00:13:15.140
+That is because we need to set up the route here, don't we?
+
+00:13:15.140 --> 00:13:17.460
+So this is for our nested resource.
+
+00:13:17.460 --> 00:13:22.419
+And we essentially want to do the same thing to where we chain the accept method
+
+00:13:22.419 --> 00:13:26.219
+because we want all of the routes except the update route.
+
+00:13:26.219 --> 00:13:29.140
+And then we want a put request.
+
+00:13:29.140 --> 00:13:36.219
+So here we will have authors slash and then the author and then tickets slash ticket.
+
+00:13:36.219 --> 00:13:41.700
+The controller is our author tickets controller and the method is replace.
+
+00:13:41.700 --> 00:13:43.099
+So that should take care of that.
+
+00:13:43.099 --> 00:13:45.820
+We send this, we should get a validation error.
+
+00:13:45.820 --> 00:13:46.340
+We do.
+
+00:13:46.340 --> 00:13:52.940
+So now we just need to add the relationships and then the author and then the data.
+
+00:13:52.940 --> 00:13:56.099
+And we have the ID of one.
+
+00:13:56.099 --> 00:13:58.020
+We'll just keep the author the same.
+
+00:13:58.020 --> 00:13:59.260
+So we will send that.
+
+00:13:59.260 --> 00:14:04.780
+We get the response back of our updated ticket information and we're good to go.
+
+00:14:04.780 --> 00:14:12.900
+So we have successfully implemented the put request for both our tickets and our author ticket controllers.
+
+00:14:12.900 --> 00:14:16.580
+So in the next episode, we will implement the update method.
+

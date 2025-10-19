@@ -1,0 +1,497 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:11.720
+In the previous episode, we implemented the replace methods on the TicketController and
+
+00:00:11.720 --> 00:00:16.320
+the AuthorTicketsController, and that handles the put requests.
+
+00:00:16.320 --> 00:00:21.719
+Now we need to handle the patch requests by implementing the update method.
+
+00:00:21.719 --> 00:00:27.340
+Now, handling a patch request is a little bit more involved because a put request is
+
+00:00:27.340 --> 00:00:28.340
+very easy.
+
+00:00:28.340 --> 00:00:32.959
+We're just taking all of the data, and all of the data is supposed to be involved with
+
+00:00:32.959 --> 00:00:34.320
+a put request.
+
+00:00:34.320 --> 00:00:37.279
+We update all of the attributes, and we're done.
+
+00:00:37.279 --> 00:00:42.400
+With a patch request, we might have one attribute, we might have two attributes, but we aren't
+
+00:00:42.400 --> 00:00:43.919
+going to have all of them.
+
+00:00:43.919 --> 00:00:48.040
+Well, I guess we could, but if you're going to replace all of the attributes, you might
+
+00:00:48.040 --> 00:00:49.480
+as well use a put.
+
+00:00:49.480 --> 00:00:55.799
+So in this case, we are going to have to check to see what was provided in the request, and
+
+00:00:55.799 --> 00:00:59.880
+then only update those attributes.
+
+00:00:59.880 --> 00:01:05.599
+So things can get very messy very quickly, but we're going to try to keep things as clean
+
+00:01:05.599 --> 00:01:06.599
+as possible.
+
+00:01:06.599 --> 00:01:11.639
+Now, I just implemented the routes for the patch requests.
+
+00:01:11.639 --> 00:01:13.820
+Now we just need to implement the code.
+
+00:01:13.820 --> 00:01:18.519
+So let's start by taking the code from the replace method, because that's going to give
+
+00:01:18.519 --> 00:01:21.279
+us everything that we would think we would need.
+
+00:01:21.279 --> 00:01:22.599
+But let's take a look at this.
+
+00:01:22.599 --> 00:01:28.599
+So this is grabbing all of the input data, the title, description, status, and the author
+
+00:01:28.599 --> 00:01:33.760
+ID, building this model array so that we can update that model.
+
+00:01:33.760 --> 00:01:39.279
+And that's great for a put, not for a patch, because we need to check, well, do we have
+
+00:01:39.279 --> 00:01:40.279
+title?
+
+00:01:40.279 --> 00:01:42.040
+If we do, then we need to update that.
+
+00:01:42.040 --> 00:01:43.040
+Do we have description?
+
+00:01:43.040 --> 00:01:44.040
+No.
+
+00:01:44.040 --> 00:01:45.320
+Then we don't need to update that.
+
+00:01:45.320 --> 00:01:51.160
+And there's a lot of if statements, or at least a lot of checking involved, and I definitely
+
+00:01:51.160 --> 00:01:53.599
+don't want to do that here inside of the controller.
+
+00:01:53.599 --> 00:02:01.160
+And really, I don't even like what we did for the replace method and for the store methods
+
+00:02:01.160 --> 00:02:03.199
+where we built that model array.
+
+00:02:03.199 --> 00:02:06.800
+Instead, I would like to have maybe one line of code here.
+
+00:02:06.800 --> 00:02:12.600
+And that's something that we can easily do, actually, because we could use our request
+
+00:02:12.600 --> 00:02:16.399
+to have, let's say that we'll have a method called mapped attributes.
+
+00:02:16.960 --> 00:02:23.160
+And we'll say that the job of this mapped attributes method is to take the input data,
+
+00:02:23.160 --> 00:02:28.000
+check to see if that input data is there, and then build an array that contains only
+
+00:02:28.000 --> 00:02:30.479
+the attributes that we need to update.
+
+00:02:30.479 --> 00:02:33.440
+That's going to work perfectly for a patch request.
+
+00:02:33.440 --> 00:02:38.559
+It's going to work perfectly for a put request, and even for a post request, because in those
+
+00:02:38.559 --> 00:02:41.479
+cases all of the attributes are required.
+
+00:02:41.479 --> 00:02:42.919
+So this is going to be great.
+
+00:02:42.919 --> 00:02:48.600
+So our code is going to look like this, basically, so that instead of creating that array, it's
+
+00:02:48.600 --> 00:02:52.160
+going to be done behind the scenes inside of our request.
+
+00:02:52.160 --> 00:02:57.559
+So that all we have to do is pass that mapped attributes to the update method, and we're
+
+00:02:57.559 --> 00:02:58.559
+done.
+
+00:02:58.559 --> 00:03:04.520
+So we could do that for the replace method, and we could do that for creating that model.
+
+00:03:04.520 --> 00:03:06.399
+So let's go to the store method.
+
+00:03:06.399 --> 00:03:12.039
+Let's get rid of that model array so that then all we need to do is just implement this
+
+00:03:12.160 --> 00:03:13.160
+method.
+
+00:03:13.160 --> 00:03:19.039
+Now, because we are going to be using this in, well, every ticket request, it kind of
+
+00:03:19.039 --> 00:03:24.119
+makes sense to create a base class for all of our ticket requests.
+
+00:03:24.119 --> 00:03:26.919
+So let's start with our replace ticket request.
+
+00:03:26.919 --> 00:03:28.000
+Let's just copy that.
+
+00:03:28.000 --> 00:03:33.679
+We will rename the copy to BaseTicketRequest, and we, of course, need to change the name
+
+00:03:33.679 --> 00:03:35.039
+of that class.
+
+00:03:35.039 --> 00:03:39.639
+But here we can just specify the things that we will need for our base ticket.
+
+00:03:39.919 --> 00:03:44.919
+For example, we don't need to really specify the authorize, because that will be handled
+
+00:03:44.919 --> 00:03:47.320
+in the child classes.
+
+00:03:47.320 --> 00:03:49.880
+And really the same thing for the rules.
+
+00:03:49.880 --> 00:03:55.000
+So we can get rid of the rules, but the messages method we would need inside of the store ticket
+
+00:03:55.000 --> 00:03:59.880
+request, the update ticket request, and the replace ticket request, because we need to
+
+00:03:59.880 --> 00:04:04.460
+validate and provide our custom message for the status.
+
+00:04:04.460 --> 00:04:06.160
+So that's going to be great.
+
+00:04:06.160 --> 00:04:10.600
+We can get rid of messages here inside of replace ticket request.
+
+00:04:10.600 --> 00:04:15.000
+Let's open up the store ticket request, and we will get rid of messages there.
+
+00:04:15.000 --> 00:04:20.959
+We do need to inherit that base ticket request, but that's going to be easy enough to do.
+
+00:04:20.959 --> 00:04:24.760
+So let's be sure to do that in all three requests.
+
+00:04:24.760 --> 00:04:29.480
+And here for update, since we haven't done anything with this, we need to authorize that
+
+00:04:29.480 --> 00:04:30.480
+to true.
+
+00:04:30.480 --> 00:04:33.519
+Our rules here is going to be very similar to replace.
+
+00:04:34.000 --> 00:04:38.600
+In fact, we could just grab that code and paste that inside of our rules.
+
+00:04:38.600 --> 00:04:43.200
+The only change that we need to make, though, is instead of required, this is sometimes
+
+00:04:43.200 --> 00:04:44.200
+required.
+
+00:04:44.200 --> 00:04:47.440
+So we'll make that change, and our rules are going to be fine.
+
+00:04:47.440 --> 00:04:49.679
+And that's practically it here.
+
+00:04:49.679 --> 00:04:54.600
+So we can close all of these files so that we can focus on our base ticket.
+
+00:04:54.600 --> 00:04:59.160
+So we want this method called mapped attributes.
+
+00:04:59.160 --> 00:05:01.440
+So let's define that.
+
+00:05:01.440 --> 00:05:08.040
+And the first thing that we need to do is build a map between the input keys, which
+
+00:05:08.040 --> 00:05:11.959
+are in line with data.attributes.status.
+
+00:05:11.959 --> 00:05:15.239
+I'm just going to refer to those as data attributes.
+
+00:05:15.239 --> 00:05:19.559
+Let's open up at least one of these so that we can copy and paste here.
+
+00:05:19.559 --> 00:05:25.119
+But our attribute map is going to look like this, where the key is our data attributes,
+
+00:05:25.119 --> 00:05:28.980
+and then the value is going to be the attribute on the model.
+
+00:05:28.980 --> 00:05:34.779
+So there's the title, there's the description, there's the status, and then we also want
+
+00:05:34.779 --> 00:05:36.399
+the author ID.
+
+00:05:36.399 --> 00:05:43.260
+But I guess we should also go ahead and include the createdAt and updatedAt attributes as
+
+00:05:43.260 --> 00:05:44.260
+well.
+
+00:05:44.260 --> 00:05:48.459
+So we will have those and then updatedAt.
+
+00:05:48.459 --> 00:05:50.380
+So this is our map.
+
+00:05:50.380 --> 00:05:56.739
+We're just taking what is provided as a key from the request and mapping that as the attribute
+
+00:05:56.739 --> 00:05:58.640
+name as the value.
+
+00:05:58.640 --> 00:06:04.079
+So with that in place, then we need to build an array that contains the attributes that
+
+00:06:04.079 --> 00:06:09.679
+we want to update, so that then we will iterate over our attribute map.
+
+00:06:09.679 --> 00:06:15.200
+We will see if the request contains the key so that we can get its value and add that
+
+00:06:15.200 --> 00:06:17.279
+to our attributes to update.
+
+00:06:17.279 --> 00:06:22.880
+So we'll have a forEach attribute map as, and we'll break this down into key and then
+
+00:06:22.880 --> 00:06:23.880
+attribute.
+
+00:06:24.200 --> 00:06:32.279
+And we will check if the request has the input key, then we will add the model attribute
+
+00:06:32.279 --> 00:06:38.679
+to our attributes to update, and we'll set its value to whatever value was provided for
+
+00:06:38.679 --> 00:06:40.079
+the input key.
+
+00:06:40.079 --> 00:06:44.959
+And that's going to be it, so that then we can just return attributes to update, and
+
+00:06:44.959 --> 00:06:46.239
+we're going to go there.
+
+00:06:46.239 --> 00:06:47.239
+That should work.
+
+00:06:47.239 --> 00:06:51.079
+I don't think that there's any other thing that I missed, but we will definitely find
+
+00:06:51.079 --> 00:06:52.079
+out.
+
+00:06:52.079 --> 00:06:53.079
+Let's go to Postman.
+
+00:06:53.279 --> 00:06:59.160
+Let's copy the put request for our ticket, and we will just need to make a few changes
+
+00:06:59.160 --> 00:07:00.160
+here.
+
+00:07:00.160 --> 00:07:04.359
+Of course, we need to change this to Patch, and the name will be Patch Ticket.
+
+00:07:04.359 --> 00:07:10.760
+And this already has a body here, but we only want to specify one or two of these values
+
+00:07:10.760 --> 00:07:13.679
+so that we can see if it's actually going to update things.
+
+00:07:13.679 --> 00:07:18.200
+So this was Ticket with an ID of 101.
+
+00:07:18.200 --> 00:07:20.959
+Let's make sure that we have that fresh data.
+
+00:07:20.959 --> 00:07:25.399
+Okay, so the title was Changed Title 2, then Description.
+
+00:07:25.399 --> 00:07:29.720
+So I tell you what, let's change the title, let's change the status.
+
+00:07:29.720 --> 00:07:33.760
+And if that works, we'll just call that done, and then we will move on.
+
+00:07:33.760 --> 00:07:39.720
+So for our Patch request, we will get rid of everything else because, well, we are patching
+
+00:07:39.720 --> 00:07:40.720
+this.
+
+00:07:40.720 --> 00:07:41.839
+We aren't replacing everything.
+
+00:07:41.839 --> 00:07:47.160
+So the title, we'll say, is Changed Title 3, and we'll leave the description alone,
+
+00:07:47.160 --> 00:07:50.559
+but we will change the status to C for Completed.
+
+00:07:51.160 --> 00:07:52.880
+And let's send that request.
+
+00:07:52.880 --> 00:07:57.440
+It looks like, yes, our title changed, our status changed.
+
+00:07:57.440 --> 00:08:01.559
+Let's make sure, and let's make a GET request for that resource.
+
+00:08:01.559 --> 00:08:03.679
+Sure enough, that data has been updated.
+
+00:08:03.679 --> 00:08:04.679
+So perfect.
+
+00:08:04.679 --> 00:08:05.739
+That works just fine.
+
+00:08:05.739 --> 00:08:11.839
+Now we need to implement this functionality inside of our Author Tickets controller.
+
+00:08:11.839 --> 00:08:18.339
+So let's do that, and let's just copy the replace method because that's basically everything
+
+00:08:18.339 --> 00:08:22.700
+that we need to do except that we, of course, need to change the name to Update.
+
+00:08:22.700 --> 00:08:26.260
+The request needs to be Update Ticket Request.
+
+00:08:26.260 --> 00:08:30.579
+We will still have the Author ID and the Ticket ID.
+
+00:08:30.579 --> 00:08:33.840
+We still need to get that ticket, or at least try to get the ticket.
+
+00:08:33.840 --> 00:08:39.179
+We need to make sure that the Ticket's user ID is the provided Author ID, but then we'll
+
+00:08:39.179 --> 00:08:45.020
+get rid of this code because we will use the RequestMappedAttributes method.
+
+00:08:45.020 --> 00:08:47.580
+So that's going to work just fine there.
+
+00:08:47.580 --> 00:08:51.580
+Then we can use this method inside of our Others.
+
+00:08:51.580 --> 00:08:58.299
+So for our Replace, we will get rid of that model, and we will use our RequestMappedAttributes,
+
+00:08:58.299 --> 00:09:00.500
+and let's go to the Store method here.
+
+00:09:00.500 --> 00:09:05.020
+Since all of this worked for our normal Tickets controller, I'm just going to assume that
+
+00:09:05.020 --> 00:09:06.460
+it's going to work here.
+
+00:09:06.460 --> 00:09:09.919
+But you know what they say about assumption, so I guess we better test this.
+
+00:09:09.919 --> 00:09:17.419
+So let's go to our Users container, and let's duplicate the PutUserTicket.
+
+00:09:17.419 --> 00:09:20.539
+This is going to be the PatchUserTicket.
+
+00:09:20.539 --> 00:09:25.179
+And before we do anything else, let's make a GetRequest for this.
+
+00:09:25.179 --> 00:09:32.539
+So we will get all of the tickets for the Author ID of 1, and the ID of 20 for that
+
+00:09:32.539 --> 00:09:34.179
+ticket is the first one.
+
+00:09:34.179 --> 00:09:37.059
+So we can see that the PutRequest works.
+
+00:09:37.059 --> 00:09:39.900
+We will change that to PatchRequestWorks.
+
+00:09:39.900 --> 00:09:42.500
+We'll set the status to OnHold.
+
+00:09:42.500 --> 00:09:44.419
+So let's go to our PatchRequest.
+
+00:09:44.419 --> 00:09:49.260
+Let's change the type of request to Patch, and then for the body, once again, we don't
+
+00:09:49.260 --> 00:09:55.299
+need all of these things, but we will change the title to PatchRequest.
+
+00:09:55.299 --> 00:10:00.059
+Let's change the description to implement the Update method, and let's leave the status
+
+00:10:00.059 --> 00:10:01.059
+alone.
+
+00:10:01.059 --> 00:10:03.539
+So we should be able to send that request.
+
+00:10:03.539 --> 00:10:04.580
+We get a response.
+
+00:10:04.580 --> 00:10:07.580
+We can see that that ticket was updated.
+
+00:10:07.580 --> 00:10:09.719
+So everything is working just fine.
+
+00:10:09.719 --> 00:10:17.679
+We now have the ability to completely update a resource, both with a PutRequest and a PatchRequest.
+
+00:10:17.679 --> 00:10:22.719
+And so in the next episode, we will start working with token abilities so that we can
+
+00:10:22.719 --> 00:10:25.719
+control what users can and cannot do.
+

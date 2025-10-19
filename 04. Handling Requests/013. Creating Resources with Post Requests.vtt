@@ -1,0 +1,866 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:05.000
+We have spent a lot of time focusing on fetching data.
+
+00:00:05.000 --> 00:00:10.000
+We can fetch a collection of data, we can filter that, we can sort it.
+
+00:00:10.000 --> 00:00:12.000
+We can also fetch individual resources.
+
+00:00:12.000 --> 00:00:16.000
+And I'm sure that there's something that I'm forgetting, but for the most part,
+
+00:00:16.000 --> 00:00:18.000
+we're done as far as fetching data.
+
+00:00:18.000 --> 00:00:23.000
+Now we need to do everything else, such as creating new resources,
+
+00:00:23.000 --> 00:00:26.000
+editing resources, and deleting resources.
+
+00:00:26.000 --> 00:00:30.000
+So in this episode, we are going to focus on creating resources.
+
+00:00:30.000 --> 00:00:33.000
+That is, of course, done through a POST request,
+
+00:00:33.000 --> 00:00:37.000
+which is handled by the store method on our controllers.
+
+00:00:37.000 --> 00:00:39.000
+Now, whenever we created our controllers,
+
+00:00:39.000 --> 00:00:45.000
+we opted to create some request classes, like the store ticket request.
+
+00:00:45.000 --> 00:00:50.000
+This is where we will validate the POST request for our ticket,
+
+00:00:50.000 --> 00:00:53.000
+and we will, of course, take that data once it's validated,
+
+00:00:53.000 --> 00:00:55.000
+and store it in the database.
+
+00:00:55.000 --> 00:00:57.000
+And I'm going to start here with the authorize method,
+
+00:00:57.000 --> 00:00:59.000
+and I'm just going to return true.
+
+00:00:59.000 --> 00:01:02.000
+Now, in a typical application, this is where, at the very least,
+
+00:01:02.000 --> 00:01:05.000
+we would determine if the user is authenticated.
+
+00:01:05.000 --> 00:01:07.000
+But we don't need to do that,
+
+00:01:07.000 --> 00:01:12.000
+because the sanctum middleware is protecting these controllers.
+
+00:01:12.000 --> 00:01:18.000
+So therefore, a client will not even be able to make this POST request.
+
+00:01:18.000 --> 00:01:21.000
+They can make the POST request, but it's not going to be able to
+
+00:01:21.000 --> 00:01:24.000
+They can make the POST request, but it's not going to work,
+
+00:01:24.000 --> 00:01:28.000
+because if they haven't authenticated and they don't have that API token,
+
+00:01:28.000 --> 00:01:31.000
+this isn't going to be accessible at all.
+
+00:01:31.000 --> 00:01:34.000
+So all we need to do right now is return true.
+
+00:01:34.000 --> 00:01:36.000
+We will talk about authorization,
+
+00:01:36.000 --> 00:01:40.000
+because not every client will be able to create a new ticket.
+
+00:01:40.000 --> 00:01:42.000
+But we will get there later on.
+
+00:01:42.000 --> 00:01:45.000
+For right now, we're just going to return true here.
+
+00:01:45.000 --> 00:01:47.000
+Then the validation rules.
+
+00:01:47.000 --> 00:01:51.000
+Now, in order to know how to validate the incoming data,
+
+00:01:51.000 --> 00:01:54.000
+we need to know what format that data is going to be,
+
+00:01:54.000 --> 00:01:56.000
+and we get to define what that is.
+
+00:01:56.000 --> 00:01:59.000
+Now, since this is a JSON API,
+
+00:01:59.000 --> 00:02:04.000
+it's typically convention that the request format would mirror our payload.
+
+00:02:04.000 --> 00:02:08.000
+So the client would send us a request that would have a data object,
+
+00:02:08.000 --> 00:02:11.000
+that would have an attributes object,
+
+00:02:11.000 --> 00:02:13.000
+which would have our title, description, and status.
+
+00:02:13.000 --> 00:02:16.000
+And then we would also need the relationships object,
+
+00:02:16.000 --> 00:02:20.000
+because we would need to know the author ID that created the ticket.
+
+00:02:20.000 --> 00:02:23.000
+So it's going to be fairly the same.
+
+00:02:23.000 --> 00:02:25.000
+We can omit the types, I think,
+
+00:02:25.000 --> 00:02:28.000
+because we really aren't checking those types.
+
+00:02:28.000 --> 00:02:33.000
+And really, that wouldn't be a big deal, except for our relationships.
+
+00:02:33.000 --> 00:02:37.000
+If we had different types of data for author or things like that,
+
+00:02:37.000 --> 00:02:39.000
+then that would make sense.
+
+00:02:39.000 --> 00:02:41.000
+But in this case, it doesn't.
+
+00:02:41.000 --> 00:02:45.000
+So what we need to do is define our validation rules
+
+00:02:45.000 --> 00:02:48.000
+based upon our payload format.
+
+00:02:48.000 --> 00:02:51.000
+Now, we could start by specifying data,
+
+00:02:51.000 --> 00:02:55.000
+that data is going to be required, and it's going to be an array.
+
+00:02:55.000 --> 00:02:59.000
+And then we can say data.attributes is also required,
+
+00:02:59.000 --> 00:03:01.000
+and it's also an array.
+
+00:03:01.000 --> 00:03:06.000
+So that then we can say data.attributes.title.
+
+00:03:06.000 --> 00:03:07.000
+Yeah, we could do that.
+
+00:03:07.000 --> 00:03:12.000
+All we really need to do is validate our attributes here.
+
+00:03:12.000 --> 00:03:17.000
+So we can say data.attributes.title is required, and it is a string.
+
+00:03:17.000 --> 00:03:19.000
+That's really all that we need to do.
+
+00:03:19.000 --> 00:03:22.000
+But of course, we need to include the description,
+
+00:03:22.000 --> 00:03:25.000
+which is required in the string, and then the status.
+
+00:03:25.000 --> 00:03:27.000
+But the status is a little bit different
+
+00:03:27.000 --> 00:03:31.000
+because we have some valid values that it has to be.
+
+00:03:31.000 --> 00:03:35.000
+Like the client can't say that the status is T
+
+00:03:35.000 --> 00:03:38.000
+because our application has no idea what T means.
+
+00:03:38.000 --> 00:03:43.000
+So we have A for active, C for completed, H for on hold,
+
+00:03:43.000 --> 00:03:44.000
+and then X for canceled.
+
+00:03:44.000 --> 00:03:48.000
+And then finally, we need to validate the author ID.
+
+00:03:48.000 --> 00:03:53.000
+So that would be under Relationships, and then author.data.id.
+
+00:03:53.000 --> 00:03:57.000
+And in this case, it would be required and an integer.
+
+00:03:57.000 --> 00:04:01.000
+So with that in place, we should be able to send a POST request,
+
+00:04:01.000 --> 00:04:05.000
+and our ticket controller will handle it, and everything will be validated.
+
+00:04:05.000 --> 00:04:08.000
+So before we start saving something into the database,
+
+00:04:08.000 --> 00:04:11.000
+let's first of all test this functionality.
+
+00:04:11.000 --> 00:04:15.000
+Let's create a new request under our tickets collection,
+
+00:04:15.000 --> 00:04:18.000
+and this is going to be a POST request.
+
+00:04:18.000 --> 00:04:20.000
+Now, since this is a POST request,
+
+00:04:20.000 --> 00:04:25.000
+this is going to go to the URL of just slash tickets.
+
+00:04:25.000 --> 00:04:29.000
+We don't specify an ID or anything like that.
+
+00:04:29.000 --> 00:04:34.000
+We do, however, need to set the authorization to a bare token.
+
+00:04:34.000 --> 00:04:39.000
+For our headers, let's set that accept header to application.json,
+
+00:04:39.000 --> 00:04:41.000
+and then let's send it.
+
+00:04:41.000 --> 00:04:43.000
+Of course, we haven't sent a body,
+
+00:04:43.000 --> 00:04:48.000
+but this is a perfect opportunity to see the error messages that we get.
+
+00:04:48.000 --> 00:04:55.000
+Let's go ahead and let's save this as create, no, as POST tickets.
+
+00:04:55.000 --> 00:05:00.000
+Of course, our error messages tell the client exactly what is wrong here.
+
+00:05:00.000 --> 00:05:04.000
+Title is required, description is required, and status is required.
+
+00:05:04.000 --> 00:05:06.000
+So we need to add a body.
+
+00:05:06.000 --> 00:05:09.000
+This is going to be a JSON payload,
+
+00:05:09.000 --> 00:05:12.000
+so let's start there to where we will have our data,
+
+00:05:12.000 --> 00:05:16.000
+which will then have our attributes, which will then have title.
+
+00:05:16.000 --> 00:05:19.000
+And let's call this first ticket,
+
+00:05:19.000 --> 00:05:21.000
+because really this is the first ticket that we are creating.
+
+00:05:21.000 --> 00:05:26.000
+And if we send this, of course, we will see that the title is now validated.
+
+00:05:26.000 --> 00:05:27.000
+Everything is fine there.
+
+00:05:27.000 --> 00:05:32.000
+Now we just have the description status and the author ID.
+
+00:05:32.000 --> 00:05:34.000
+So let's add the description,
+
+00:05:34.000 --> 00:05:38.000
+which can be something descriptive for the first ticket.
+
+00:05:38.000 --> 00:05:41.000
+This is the first ticket we created.
+
+00:05:41.000 --> 00:05:44.000
+And let's go ahead and add the status.
+
+00:05:44.000 --> 00:05:49.000
+But let's add an invalid status like T, because, well, why not?
+
+00:05:49.000 --> 00:05:55.000
+And if we submit this, we will then see, well, we're seeing what I did not expect.
+
+00:05:55.000 --> 00:05:58.000
+Validate string, n does not exist.
+
+00:05:58.000 --> 00:06:00.000
+Did I type something wrong?
+
+00:06:00.000 --> 00:06:06.000
+Let's look at our rules, and yes, that needs to be a pipe, not a comma.
+
+00:06:06.000 --> 00:06:07.000
+So there we go.
+
+00:06:07.000 --> 00:06:14.000
+Let's resend this, and we can see that the selected data.attributes.status is invalid.
+
+00:06:14.000 --> 00:06:17.000
+Yeah, that's okay, because it is invalid.
+
+00:06:17.000 --> 00:06:23.000
+But in this particular case, we kind of need to tell the client why it's not valid,
+
+00:06:23.000 --> 00:06:25.000
+because the client needs to know that.
+
+00:06:25.000 --> 00:06:27.000
+And, of course, our documentation would have that,
+
+00:06:27.000 --> 00:06:31.000
+but having that in our message would be good, too.
+
+00:06:31.000 --> 00:06:35.000
+So let's write a public method called messages,
+
+00:06:35.000 --> 00:06:38.000
+and we will simply return an array.
+
+00:06:38.000 --> 00:06:43.000
+And we want a custom message for data.attributes.status.
+
+00:06:44.000 --> 00:06:51.000
+And we'll just say that the data.attributes.status value is invalid.
+
+00:06:51.000 --> 00:06:55.000
+Please use A, C, H, or X.
+
+00:06:55.000 --> 00:06:57.000
+And that's pretty specific.
+
+00:06:57.000 --> 00:07:01.000
+So if we go back, send that request, we should see that message.
+
+00:07:01.000 --> 00:07:02.000
+We do, so great.
+
+00:07:02.000 --> 00:07:09.000
+Let's change that to a valid value, A for active, and now we just have the author ID.
+
+00:07:09.000 --> 00:07:11.000
+So let's add that.
+
+00:07:11.000 --> 00:07:19.000
+That is under relationships, and then author, and then I believe it's data,
+
+00:07:19.000 --> 00:07:22.000
+and then we have ID.
+
+00:07:22.000 --> 00:07:25.000
+And let's use the user ID of 1.
+
+00:07:25.000 --> 00:07:28.000
+So if we send that request, that's great.
+
+00:07:28.000 --> 00:07:30.000
+No more validation errors.
+
+00:07:30.000 --> 00:07:31.000
+Everything should be fine.
+
+00:07:31.000 --> 00:07:34.000
+So let's implement this code inside of our ticket controller.
+
+00:07:34.000 --> 00:07:38.000
+We don't have to worry about the validation, because that's automatically done.
+
+00:07:38.000 --> 00:07:42.000
+So if this code is going to execute, that means that we have a valid request.
+
+00:07:42.000 --> 00:07:43.000
+We have information.
+
+00:07:43.000 --> 00:07:49.000
+However, one thing we should do is check to see if the provided user exists.
+
+00:07:49.000 --> 00:07:51.000
+So let's do this.
+
+00:07:51.000 --> 00:07:55.000
+We'll say user equals, we'll use our user model,
+
+00:07:55.000 --> 00:08:01.000
+and we'll find by the request input in, what is it,
+
+00:08:01.000 --> 00:08:06.000
+data.relationships.author.data.id.
+
+00:08:06.000 --> 00:08:07.000
+That's very long.
+
+00:08:07.000 --> 00:08:10.000
+If, and you know what, no, let's not do that.
+
+00:08:10.000 --> 00:08:11.000
+Let's do this.
+
+00:08:11.000 --> 00:08:15.000
+We'll find or fail, and we're going to wrap this with a try catch.
+
+00:08:15.000 --> 00:08:19.000
+And if we catch that the model not found exception,
+
+00:08:19.000 --> 00:08:24.000
+then we need to tell the client this user does not exist.
+
+00:08:24.000 --> 00:08:29.000
+And here we could say, okay, oh, you know what?
+
+00:08:29.000 --> 00:08:33.000
+We didn't ever add that trait to our API controller, did we?
+
+00:08:33.000 --> 00:08:35.000
+So let's do this.
+
+00:08:35.000 --> 00:08:40.000
+Inside of our API controller, we want to use the API responses
+
+00:08:40.000 --> 00:08:45.000
+so that inside of our ticket controller, we can return this.
+
+00:08:45.000 --> 00:08:50.000
+Now, we could spend a lot of time talking about what is the correct thing to do
+
+00:08:50.000 --> 00:08:53.000
+in this particular kind of case because, you know,
+
+00:08:53.000 --> 00:08:57.000
+you're going to find different answers based upon whoever it is that you ask.
+
+00:08:57.000 --> 00:09:03.000
+If you look at a lot of APIs, not just Laravel APIs, but just APIs in general,
+
+00:09:03.000 --> 00:09:06.000
+you'll see that they always return a 200.
+
+00:09:06.000 --> 00:09:07.000
+It doesn't matter what happened.
+
+00:09:07.000 --> 00:09:11.000
+If it was a server error or if the client sent a bad request,
+
+00:09:11.000 --> 00:09:14.000
+the API would return a status of 200,
+
+00:09:14.000 --> 00:09:19.000
+but the payload would have information about what actually happened,
+
+00:09:19.000 --> 00:09:23.000
+and it might actually have the actual status code in the payload.
+
+00:09:23.000 --> 00:09:27.000
+But the status code returned in the response would still be 200.
+
+00:09:27.000 --> 00:09:30.000
+Now, there are many reasons why you would want to take that approach,
+
+00:09:30.000 --> 00:09:32.000
+and one of those is security
+
+00:09:32.000 --> 00:09:37.000
+because one thing an attacker will look for is a server error, a 500,
+
+00:09:37.000 --> 00:09:40.000
+or just something that in their minds might be something
+
+00:09:40.000 --> 00:09:44.000
+that they need to target to find a vulnerability.
+
+00:09:44.000 --> 00:09:50.000
+And if you return 200, you're kind of obscuring any kind of error.
+
+00:09:50.000 --> 00:09:54.000
+Now, of course, you might ask, well, if we return a 200,
+
+00:09:54.000 --> 00:09:57.000
+but our payload has the error information, you know,
+
+00:09:57.000 --> 00:09:59.000
+what is that protecting us from?
+
+00:09:59.000 --> 00:10:00.000
+And that's a very good question,
+
+00:10:00.000 --> 00:10:04.000
+but I will say that an attacker is going to primarily look at the status codes
+
+00:10:04.000 --> 00:10:10.000
+because they have automated tools that send thousands of requests.
+
+00:10:10.000 --> 00:10:14.000
+They don't have time to look at each and every response.
+
+00:10:14.000 --> 00:10:18.000
+But if they look at the status code and their tools are set up
+
+00:10:18.000 --> 00:10:20.000
+to look at specific status codes,
+
+00:10:20.000 --> 00:10:23.000
+then you do protect yourself through obscurity.
+
+00:10:23.000 --> 00:10:27.000
+It's not true security, but it's better than nothing.
+
+00:10:27.000 --> 00:10:30.000
+So I think in this particular case, we will return OK,
+
+00:10:30.000 --> 00:10:33.000
+but our message is going to say user not found.
+
+00:10:33.000 --> 00:10:43.000
+And then we could include an error that says the provided user ID does not exist.
+
+00:10:43.000 --> 00:10:48.000
+And I guess we need to look at if we returned any other error before
+
+00:10:48.000 --> 00:10:50.000
+just so that everything is consistent.
+
+00:10:50.000 --> 00:10:55.000
+So I believe we did that inside of the auth controller, didn't we?
+
+00:10:55.000 --> 00:10:57.000
+So let's take a look.
+
+00:10:57.000 --> 00:10:59.000
+Did we have any errors anywhere?
+
+00:10:59.000 --> 00:11:02.000
+Yes, but we called error.
+
+00:11:02.000 --> 00:11:04.000
+We'll just stick with what we have.
+
+00:11:04.000 --> 00:11:07.000
+And if we need to change it later, we'll change it later.
+
+00:11:07.000 --> 00:11:09.000
+All right, so we'll have that done.
+
+00:11:09.000 --> 00:11:11.000
+But if we make it past there,
+
+00:11:11.000 --> 00:11:16.000
+then it's just a matter of creating our database record.
+
+00:11:16.000 --> 00:11:19.000
+So we could do something like this to where we would set the title
+
+00:11:19.000 --> 00:11:23.000
+and then we would grab the title from the request.
+
+00:11:23.000 --> 00:11:25.000
+So we would use input here.
+
+00:11:25.000 --> 00:11:28.000
+We would specify data attributes title.
+
+00:11:28.000 --> 00:11:33.000
+Then we will do the same thing for description and for the status.
+
+00:11:33.000 --> 00:11:37.000
+But we also need to specify the user ID,
+
+00:11:37.000 --> 00:11:41.000
+which that is provided through our input as well.
+
+00:11:41.000 --> 00:11:47.000
+That would be data.relationships.author.data.id.
+
+00:11:47.000 --> 00:11:51.000
+Now, we do need to add these as fillable to our model.
+
+00:11:51.000 --> 00:11:52.000
+So we will do that here in a minute.
+
+00:11:52.000 --> 00:11:56.000
+But since we are almost done here, we will say ticket create.
+
+00:11:56.000 --> 00:11:58.000
+We will pass in the model.
+
+00:11:58.000 --> 00:12:00.000
+And really what we need to do is return that.
+
+00:12:00.000 --> 00:12:03.000
+Because we are creating a new resource,
+
+00:12:03.000 --> 00:12:07.000
+we want to return that resource after it is created
+
+00:12:07.000 --> 00:12:09.000
+so that the client can do whatever it needs to with it.
+
+00:12:09.000 --> 00:12:12.000
+So with that done, let's go to our ticket model
+
+00:12:12.000 --> 00:12:16.000
+and let's add protected fillable.
+
+00:12:16.000 --> 00:12:20.000
+And basically, we want the title, the status,
+
+00:12:20.000 --> 00:12:23.000
+the description, and the user ID.
+
+00:12:23.000 --> 00:12:25.000
+That should get us there.
+
+00:12:25.000 --> 00:12:27.000
+Now we just need to submit this request.
+
+00:12:27.000 --> 00:12:32.000
+So whenever we send this, we should get a response back of our entity.
+
+00:12:32.000 --> 00:12:38.000
+But one thing we did not do is use our ticket resource.
+
+00:12:38.000 --> 00:12:41.000
+Because yes, we returned the entity.
+
+00:12:41.000 --> 00:12:44.000
+We can see that we have a new ID here.
+
+00:12:44.000 --> 00:12:47.000
+However, we really needed to do this.
+
+00:12:47.000 --> 00:12:51.000
+New ticket resource, passing in that newly created ticket,
+
+00:12:51.000 --> 00:12:53.000
+and that would be it.
+
+00:12:53.000 --> 00:12:55.000
+So I guess technically this is not the first.
+
+00:12:55.000 --> 00:12:57.000
+This is the second ticket.
+
+00:12:57.000 --> 00:13:00.000
+So we will add the second ticket.
+
+00:13:00.000 --> 00:13:02.000
+And let's change the user ID.
+
+00:13:02.000 --> 00:13:07.000
+In fact, let's test this out so that we try a user that does not exist.
+
+00:13:07.000 --> 00:13:12.000
+So ID of 15, I believe we had tried to use that previously,
+
+00:13:12.000 --> 00:13:13.000
+and that didn't work.
+
+00:13:13.000 --> 00:13:16.000
+So if we send this, yes, we get an error.
+
+00:13:16.000 --> 00:13:19.000
+The provided user ID does not exist.
+
+00:13:19.000 --> 00:13:20.000
+I misspelled exist.
+
+00:13:20.000 --> 00:13:22.000
+But that works fine.
+
+00:13:22.000 --> 00:13:23.000
+That's great.
+
+00:13:23.000 --> 00:13:25.000
+So let's use an ID of 2.
+
+00:13:25.000 --> 00:13:27.000
+That is going to create our new ticket,
+
+00:13:27.000 --> 00:13:32.000
+and it is now in the format of what the client expects.
+
+00:13:32.000 --> 00:13:35.000
+So we are good to go as far as creating our resource.
+
+00:13:35.000 --> 00:13:41.000
+But we also need to do this inside of our author tickets controller
+
+00:13:41.000 --> 00:13:47.000
+because we need to be able to create a ticket using the URL of authors
+
+00:13:47.000 --> 00:13:52.000
+and then the author ID tickets and then submitting a POST request.
+
+00:13:52.000 --> 00:13:54.000
+So that should be easy enough to do.
+
+00:13:54.000 --> 00:13:57.000
+Let's duplicate this request.
+
+00:13:57.000 --> 00:14:01.000
+Let's rename it to be POST user ticket.
+
+00:14:01.000 --> 00:14:05.000
+Let's change it from a GET to a POST.
+
+00:14:05.000 --> 00:14:07.000
+Let's copy this payload.
+
+00:14:07.000 --> 00:14:09.000
+But this is going to be slightly different
+
+00:14:09.000 --> 00:14:14.000
+because in this particular case we don't need to specify the user ID
+
+00:14:14.000 --> 00:14:18.000
+because the user ID is part of the URL.
+
+00:14:18.000 --> 00:14:21.000
+So this relationships part is not needed.
+
+00:14:21.000 --> 00:14:24.000
+All we really need is just the attributes.
+
+00:14:24.000 --> 00:14:29.000
+So this means that we are going to need to modify our store ticket request
+
+00:14:29.000 --> 00:14:32.000
+and specifically our validation rules
+
+00:14:32.000 --> 00:14:37.000
+because we only need to validate the author ID for a certain route.
+
+00:14:37.000 --> 00:14:38.000
+So let's do this.
+
+00:14:38.000 --> 00:14:44.000
+Let's create a variable called rules where we will set our base rules here.
+
+00:14:44.000 --> 00:14:48.000
+And then we will kind of do what we did inside of our resource classes
+
+00:14:48.000 --> 00:14:53.000
+to where we'll check that the route is tickets.store.
+
+00:14:53.000 --> 00:14:58.000
+If it is, then we will add the rule for the author ID
+
+00:14:58.000 --> 00:15:03.000
+so that that will be available for our tickets controller.
+
+00:15:03.000 --> 00:15:07.000
+For our author tickets, then all we will need are the attributes.
+
+00:15:07.000 --> 00:15:10.000
+So let's go back to our store.
+
+00:15:10.000 --> 00:15:13.000
+We do need to return our rules here.
+
+00:15:13.000 --> 00:15:16.000
+But with that, we can go to our author tickets controller.
+
+00:15:16.000 --> 00:15:17.000
+Actually, let's do this.
+
+00:15:17.000 --> 00:15:19.000
+Let's go to our ticket controller.
+
+00:15:19.000 --> 00:15:25.000
+And we don't necessarily need our try and catch in that particular case.
+
+00:15:25.000 --> 00:15:28.000
+Let's just grab what we have as far as creating our model.
+
+00:15:28.000 --> 00:15:30.000
+And let's drop that.
+
+00:15:30.000 --> 00:15:32.000
+Okay, we don't have that method.
+
+00:15:32.000 --> 00:15:36.000
+So let's copy the entire method from our tickets controller.
+
+00:15:36.000 --> 00:15:40.000
+And let's paste that inside of our author tickets controller.
+
+00:15:40.000 --> 00:15:43.000
+Now, we do need to change a few things here.
+
+00:15:43.000 --> 00:15:48.000
+First of all, we need to add a use statement for our store ticket request.
+
+00:15:48.000 --> 00:15:53.000
+We also need to specify the author ID for this store method.
+
+00:15:53.000 --> 00:15:57.000
+We should be fine as far as that is concerned.
+
+00:15:57.000 --> 00:16:01.000
+We do need to change the value for the user ID
+
+00:16:01.000 --> 00:16:04.000
+because we have that passed to the method.
+
+00:16:04.000 --> 00:16:05.000
+That should do it.
+
+00:16:05.000 --> 00:16:08.000
+That should get us exactly what we need.
+
+00:16:08.000 --> 00:16:09.000
+So let's do this.
+
+00:16:09.000 --> 00:16:15.000
+Let's say that the author ID is going to be six and tickets.
+
+00:16:15.000 --> 00:16:18.000
+We're going to change this to third ticket.
+
+00:16:18.000 --> 00:16:21.000
+And we will send that request.
+
+00:16:21.000 --> 00:16:24.000
+We should get the response back for our new ticket.
+
+00:16:24.000 --> 00:16:26.000
+We can see we have a new ID.
+
+00:16:26.000 --> 00:16:28.000
+We have all of the ticket information.
+
+00:16:28.000 --> 00:16:32.000
+So now we have the ability to create a ticket resource,
+
+00:16:32.000 --> 00:16:37.000
+both from our ticket controller and from the author ticket controller.
+
+00:16:37.000 --> 00:16:41.000
+And in the next episode, we will look at how to delete resources.
+

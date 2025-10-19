@@ -1,0 +1,338 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:10.800
+To give you an idea of how I create these videos, I typically batch record during the
+
+00:00:10.800 --> 00:00:15.400
+week and then I batch edit on the weekend, primarily because I want to break between
+
+00:00:15.400 --> 00:00:16.400
+the two.
+
+00:00:16.400 --> 00:00:20.840
+By the time I'm done recording an episode, the last thing I want to do is hear myself
+
+00:00:20.840 --> 00:00:23.920
+talk about what I just recorded.
+
+00:00:23.920 --> 00:00:25.920
+It's just, I'm tired of hearing my voice.
+
+00:00:26.920 --> 00:00:32.880
+That gives me an opportunity to go back over the things that was covered, the code that
+
+00:00:32.880 --> 00:00:39.080
+I wrote or presented, and just to see how stupid I am sometimes, because we all do it.
+
+00:00:39.080 --> 00:00:44.360
+We all write code and we all return to that code at some other point and we think, what
+
+00:00:44.360 --> 00:00:47.040
+in the world were we thinking?
+
+00:00:47.040 --> 00:00:51.360
+And yeah, permissions are one of those things.
+
+00:00:51.360 --> 00:00:58.520
+Let's look at the store user request, because this set off red flags, and no, that wasn't
+
+00:00:58.520 --> 00:00:59.520
+the right one.
+
+00:00:59.520 --> 00:01:01.720
+The store ticket request.
+
+00:01:01.720 --> 00:01:07.239
+The set off red flags, I knew this was not really the best approach, but I wanted to
+
+00:01:07.239 --> 00:01:09.480
+get it done so that we can move on.
+
+00:01:09.480 --> 00:01:12.120
+How many times do we do that and then we regret it?
+
+00:01:12.120 --> 00:01:17.199
+So, okay, as a refresher, this is a request that's being used by the ticket controller
+
+00:01:17.279 --> 00:01:19.440
+and the author ticket controller.
+
+00:01:19.440 --> 00:01:26.080
+And so we needed to get the appropriate author ID attribute so that we could assign the correct
+
+00:01:26.080 --> 00:01:27.800
+rules for that.
+
+00:01:27.800 --> 00:01:33.400
+And in this particular case, the default rule was for like a manager or an admin so that
+
+00:01:33.400 --> 00:01:36.680
+they could create a ticket for any user.
+
+00:01:36.680 --> 00:01:42.400
+But then we checked to see, well, if the user can only create their own tickets, well, then
+
+00:01:42.400 --> 00:01:45.120
+we need a more restrictive rule.
+
+00:01:45.120 --> 00:01:53.320
+And it works, but it forced us, or forced me rather, to add this comment to the get
+
+00:01:53.320 --> 00:01:55.839
+abilities method on the abilities class.
+
+00:01:55.839 --> 00:02:02.919
+And that was to not assign an asterisk, because if a user has an asterisk as an ability, this
+
+00:02:02.919 --> 00:02:04.879
+if statement is going to be true.
+
+00:02:04.879 --> 00:02:10.360
+Therefore, it's going to limit their ability to create tickets for other users.
+
+00:02:10.360 --> 00:02:13.259
+And that's not the approach.
+
+00:02:13.259 --> 00:02:15.500
+That is the wrong thing to do.
+
+00:02:15.500 --> 00:02:17.899
+I should have designed that a little bit better.
+
+00:02:17.899 --> 00:02:19.979
+And it's really not that hard.
+
+00:02:19.979 --> 00:02:25.619
+All we need to do is follow the concept of least privilege or the principle of least
+
+00:02:25.619 --> 00:02:26.619
+privilege.
+
+00:02:26.619 --> 00:02:29.300
+If you're not familiar with this, it's not a programming thing.
+
+00:02:29.300 --> 00:02:30.820
+It's just a security thing.
+
+00:02:30.820 --> 00:02:38.139
+The idea is that regardless of what the user is, you assign the most restrictive permissions
+
+00:02:38.139 --> 00:02:39.619
+for that user.
+
+00:02:39.619 --> 00:02:43.979
+And then if they need more authority, you grant them that authority.
+
+00:02:43.979 --> 00:02:49.899
+So if we were going to follow the principle of least privilege, we would do two things
+
+00:02:49.899 --> 00:02:50.899
+here.
+
+00:02:50.899 --> 00:02:55.139
+The first would be that for every user, it didn't matter if they were a typical user
+
+00:02:55.139 --> 00:03:00.660
+or a manager or an admin, they would be assigned the create own ticket, update on ticket and
+
+00:03:00.660 --> 00:03:04.119
+delete on ticket abilities, because those are the least privilege.
+
+00:03:04.119 --> 00:03:08.580
+But then if the user was a manager, we would also assign these other abilities.
+
+00:03:08.580 --> 00:03:10.300
+And if it was an admin, it wouldn't matter.
+
+00:03:10.300 --> 00:03:13.940
+We'd give them the asterisk so that they could do all of the things.
+
+00:03:13.940 --> 00:03:17.160
+And we don't necessarily need to do that here.
+
+00:03:17.160 --> 00:03:23.740
+But we do, however, need to apply the principle of least privilege in our rules.
+
+00:03:23.740 --> 00:03:32.020
+So for the sake of creating a new ticket, we need to set as the default validation rules
+
+00:03:32.020 --> 00:03:34.779
+the most restrictive rules.
+
+00:03:34.779 --> 00:03:42.580
+That means that by default, the author ID attribute needs to match the signed in user's
+
+00:03:42.580 --> 00:03:47.740
+ID, because that is the least privilege for any user.
+
+00:03:47.740 --> 00:03:52.899
+But then if we needed to grant more authority, like for example, for a manager, if they can
+
+00:03:52.899 --> 00:04:00.039
+create a ticket, then we modify the rule so that they can create that ticket.
+
+00:04:00.039 --> 00:04:05.699
+So this means for all users that can only create a ticket for themselves unless if they
+
+00:04:05.699 --> 00:04:08.880
+have the authority to create tickets for anyone.
+
+00:04:08.880 --> 00:04:13.860
+So that would be a manager, or if an admin had an asterisk, then this would grant them
+
+00:04:13.860 --> 00:04:16.940
+the ability to create a ticket for any user.
+
+00:04:16.940 --> 00:04:20.559
+But now we have two strings that are essentially the same.
+
+00:04:20.559 --> 00:04:23.880
+And that means we need to create a variable to store that.
+
+00:04:23.880 --> 00:04:26.760
+So let's just call this author rule.
+
+00:04:26.760 --> 00:04:34.359
+And we will start with that so that for the default rule, we will take that author rule
+
+00:04:34.359 --> 00:04:40.079
+variable and concatenate that with the size to limit the user ID.
+
+00:04:40.079 --> 00:04:45.899
+But then if the user can create a ticket for anyone, we set the more authority there.
+
+00:04:45.899 --> 00:04:49.000
+So that would solve our problem, and we're good there.
+
+00:04:49.000 --> 00:04:53.220
+But I think we also did that inside of the update ticket request.
+
+00:04:53.220 --> 00:04:58.799
+So in this case, the author ID should be prohibited by default.
+
+00:04:58.799 --> 00:05:04.739
+And then if the user has the authority to update a ticket, then we should grant them
+
+00:05:04.739 --> 00:05:07.440
+the authority to update the author ID.
+
+00:05:07.440 --> 00:05:09.119
+So that would fix that problem.
+
+00:05:09.119 --> 00:05:15.160
+We can now assign an asterisk to a user because that's part of the system.
+
+00:05:15.160 --> 00:05:17.399
+We need to build for the system.
+
+00:05:17.399 --> 00:05:19.519
+So therefore, we are good to go there.
+
+00:05:19.519 --> 00:05:21.119
+So crisis averted.
+
+00:05:21.140 --> 00:05:23.700
+But I'm not done talking about permissions.
+
+00:05:23.700 --> 00:05:28.619
+Because if we take a look at the ticket controller, you know, we have this is able method.
+
+00:05:28.619 --> 00:05:35.140
+This is a method that we use so that we can check the appropriate policy for an ability
+
+00:05:35.140 --> 00:05:36.579
+and a model.
+
+00:05:36.579 --> 00:05:40.000
+And it is modeled after the authenticate method.
+
+00:05:40.000 --> 00:05:44.119
+But I would prefer to do something like this, to where we would have an if statement is
+
+00:05:44.119 --> 00:05:48.059
+able to update the provided ticket.
+
+00:05:48.059 --> 00:05:52.140
+Well, then we would update the ticket, return the ticket resource.
+
+00:05:52.140 --> 00:05:59.220
+Otherwise, we would return the error stating that user is not authorized to update that
+
+00:05:59.220 --> 00:06:00.220
+resource.
+
+00:06:00.220 --> 00:06:05.299
+That way we can get rid of the other catch for the authentication exception.
+
+00:06:05.299 --> 00:06:07.700
+And this just makes our code a little cleaner.
+
+00:06:07.700 --> 00:06:09.820
+So we can easily do this.
+
+00:06:09.820 --> 00:06:13.579
+All we need to do is modify our is able method here.
+
+00:06:13.579 --> 00:06:15.140
+So that's inside of here.
+
+00:06:15.140 --> 00:06:18.059
+We try to authorize the user.
+
+00:06:18.059 --> 00:06:20.839
+And if that succeeds, we return true.
+
+00:06:20.839 --> 00:06:26.500
+We will catch the authentication exception, in which case we will just return false.
+
+00:06:26.500 --> 00:06:33.220
+So that means we can go back to our controllers and we can modify these so that we could have
+
+00:06:33.220 --> 00:06:36.619
+an if statement and then do what we need to do.
+
+00:06:36.619 --> 00:06:41.739
+Otherwise, we return our not authorized message.
+
+00:06:41.899 --> 00:06:46.059
+Let's scroll on down and let's use an if statement.
+
+00:06:46.059 --> 00:06:50.019
+If is able to delete the ticket, then we will delete it.
+
+00:06:50.019 --> 00:06:52.660
+We will return an OK response.
+
+00:06:52.660 --> 00:06:59.619
+Otherwise, we return the unauthorized message saying that they cannot delete that resource.
+
+00:06:59.619 --> 00:07:05.579
+And we should probably look at the store method because I'm pretty sure we check that ability.
+
+00:07:05.579 --> 00:07:06.579
+We do here.
+
+00:07:06.980 --> 00:07:09.260
+All we need is an if statement.
+
+00:07:09.260 --> 00:07:12.619
+Return the new ticket resource if we can.
+
+00:07:12.619 --> 00:07:15.579
+Otherwise, we return our error.
+
+00:07:15.579 --> 00:07:19.140
+Now, we can do that in all of our other controllers.
+
+00:07:19.140 --> 00:07:23.540
+I'm not going to do that on screen because it's quite a bit and you don't need to see me doing that.
+
+00:07:23.540 --> 00:07:25.859
+Or rather, you don't want to see me doing that.
+
+00:07:25.859 --> 00:07:30.660
+Now, in the next episode, we will talk about handling errors, which we've kind of done.
+
+00:07:30.660 --> 00:07:33.739
+But we need a more complete and comprehensive approach.
+

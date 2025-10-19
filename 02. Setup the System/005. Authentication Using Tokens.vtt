@@ -1,0 +1,260 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:09.560
+We can implement user authentication for our application in a variety of
+
+00:00:09.560 --> 00:00:15.160
+different ways, but the standard is to use tokens. And Laravel Sanctum makes it
+
+00:00:15.160 --> 00:00:20.480
+very easy to use tokens within your application. Now, I don't mean to imply
+
+00:00:20.480 --> 00:00:25.680
+that we are using Sanctum just because it's easy. I mean, yes, that is a very big
+
+00:00:25.680 --> 00:00:30.240
+reason why we are using it, but it's also perfect for our needs because we can
+
+00:00:30.240 --> 00:00:36.240
+easily create tokens for users, we can assign abilities to tokens, which we will
+
+00:00:36.240 --> 00:00:40.759
+look at in a later episode, and that will give us the ability to control what
+
+00:00:40.759 --> 00:00:46.639
+users can and can't do. But also, very importantly, it's installed. We don't have
+
+00:00:46.639 --> 00:00:50.400
+to do anything because whenever we created our project, Sanctum was
+
+00:00:50.400 --> 00:00:56.639
+installed as well. So, all we really need to do is provide the ability for users
+
+00:00:56.639 --> 00:01:03.119
+to sign in, and then we can create a token for them. So, let's start by
+
+00:01:03.119 --> 00:01:11.160
+creating a login request. So, we will use Artisan to make a request. We'll call it
+
+00:01:11.160 --> 00:01:16.720
+API slash login user request, and let's go ahead and write the validation rules
+
+00:01:17.040 --> 00:01:23.959
+for that request. Now, since I prefixed it with API, it is automatically in the API
+
+00:01:23.959 --> 00:01:29.839
+namespace as well as the API folder. So, we're good to go as far as our structure
+
+00:01:29.839 --> 00:01:36.480
+is concerned. Let's change the authorize to return true because if it's false,
+
+00:01:36.480 --> 00:01:42.279
+users won't be able to sign in at all. And then for our validation rules, we will
+
+00:01:42.279 --> 00:01:48.559
+have an email. So, we want to make sure that it is required and that it is a
+
+00:01:48.559 --> 00:01:54.480
+string. We can also say that it is a valid email address. And then we also
+
+00:01:54.480 --> 00:01:59.760
+need to validate the password, which is almost the same. It needs to be required
+
+00:01:59.760 --> 00:02:06.400
+and a string, but let's say that it needs to have a minimum characters of eight,
+
+00:02:06.400 --> 00:02:12.119
+and that's going to be good enough, I think, for us. So, with that done,
+
+00:02:12.119 --> 00:02:18.279
+we need to go to our AuthController. Now, our AuthController we created before we
+
+00:02:18.279 --> 00:02:25.199
+started designing our API. So, I want to move the AuthController into the API
+
+00:02:25.199 --> 00:02:32.479
+folder because the authentication for our API would be different from our normal web
+
+00:02:32.559 --> 00:02:38.800
+application. So, inside of here then, we need to make a few changes. The namespace
+
+00:02:38.800 --> 00:02:47.600
+is now API. We need to use app HTTP controllers and then controller. And we
+
+00:02:47.600 --> 00:02:55.320
+also need to update that inside of our route file. So, let's go to api.php and we
+
+00:02:55.320 --> 00:03:01.919
+just need to add the API to the namespace, and that should fix that. So,
+
+00:03:01.919 --> 00:03:08.759
+now for our login method, we want to accept the login user request. And the
+
+00:03:08.759 --> 00:03:15.320
+first thing we need to do is validate that data. So, we will use request
+
+00:03:15.320 --> 00:03:23.279
+validated, and we want to validate all of the request data. And if we have valid
+
+00:03:23.279 --> 00:03:28.800
+data, then we want to attempt to authenticate the user. So, we will call
+
+00:03:28.800 --> 00:03:35.679
+the attempt method, and then we will pass in only the email and the password. Now,
+
+00:03:35.679 --> 00:03:42.800
+if this fails, we need to tell the client that authentication failed. So, we have
+
+00:03:42.800 --> 00:03:49.759
+our traits for our API responses, but currently we only have successful
+
+00:03:49.919 --> 00:03:56.399
+responses. Let's have an error response. Let's copy the success and change the
+
+00:03:56.399 --> 00:04:03.360
+name to error. And really, except for having a default value for status code, I
+
+00:04:03.360 --> 00:04:07.759
+think that that is going to be just fine. We still have the message, the status, and
+
+00:04:07.759 --> 00:04:14.440
+everything is good there. So, when the authentication fails, then we will call
+
+00:04:14.440 --> 00:04:21.239
+our error, and we'll just say invalid credentials. And then for the HTTP status
+
+00:04:21.239 --> 00:04:29.559
+code, we'll say 401 for unauthorized. But if authentication is successful, then we
+
+00:04:29.559 --> 00:04:37.720
+need to fetch the user from the database. So, let's call first where the email is
+
+00:04:37.799 --> 00:04:44.519
+the same as the email provided in the request, and then we will return an okay
+
+00:04:44.519 --> 00:04:49.320
+response. But we also need to include the token here. So, we're going to need to
+
+00:04:49.320 --> 00:04:55.160
+change our API response just a little bit so that we can have the message. But then
+
+00:04:55.160 --> 00:05:00.279
+let's also say that we will pass data in as well, which means we will need to
+
+00:05:00.279 --> 00:05:08.920
+modify the success method, which should be fine. We'll just add the data, and that
+
+00:05:08.920 --> 00:05:15.160
+will be simply data. So, that should be fine. Let's go back to our auth controller.
+
+00:05:15.160 --> 00:05:20.279
+So, the message will simply say authenticated, and then we will have our
+
+00:05:20.279 --> 00:05:26.040
+data. Our data will have a token key, and this is where we will have the user
+
+00:05:26.040 --> 00:05:32.119
+object to create our token. Now, we need to supply a name for our token, and the
+
+00:05:32.119 --> 00:05:38.920
+name is really arbitrary. And this would be something that the user would assign
+
+00:05:38.920 --> 00:05:44.679
+if we had a profile page and they created a token, they could give it their own name.
+
+00:05:44.679 --> 00:05:49.959
+They don't really have that capability here. We might could add that in with the
+
+00:05:49.959 --> 00:05:54.600
+login request, but I don't see a need to do that. So, it really doesn't matter what
+
+00:05:54.600 --> 00:06:02.119
+this name is. So, we'll just say API token four, and then we will concatenate the
+
+00:06:02.119 --> 00:06:09.160
+user's email address. And then from here, this is going to return a hashed value.
+
+00:06:09.160 --> 00:06:17.160
+So, we want the plain text token. So, we should be able to make this request, get the
+
+00:06:17.160 --> 00:06:22.279
+token that we will then use for all of our other requests, and that's how we will
+
+00:06:22.279 --> 00:06:28.600
+authenticate the user for every request. So, let's go to Postman, and let's go to the
+
+00:06:28.600 --> 00:06:33.799
+login request. And we need to change some of these, although we need an actual user.
+
+00:06:33.799 --> 00:06:38.519
+So, let's go to the database, and let's just pick one of these. This first one looks kind
+
+00:06:38.519 --> 00:06:48.679
+of easy, this jcos at example.com. So, let's sign in as them, and the password is simply
+
+00:06:48.679 --> 00:06:54.359
+password. Let's check our headers, make sure that we are sending the accept header we are.
+
+00:06:55.079 --> 00:06:59.959
+So, let's send this. We should get a response back, and there it is. We have our data, we have
+
+00:06:59.959 --> 00:07:07.480
+our token. So, this value right here is important. We are sending this to the user, and this is the
+
+00:07:07.480 --> 00:07:13.000
+token that they are going to include with every request going forward. This is how we will
+
+00:07:13.000 --> 00:07:20.200
+authenticate the incoming requests. So, if a request doesn't have this token, then they won't
+
+00:07:20.200 --> 00:07:26.279
+be able to access whatever it is that we want to protect. So, let's look at how we can protect
+
+00:07:26.279 --> 00:07:33.399
+a route. So, let's go to our v1 routes, and let's just say that for right now, we're going to be
+
+00:07:33.399 --> 00:07:41.480
+sure that only authenticated users can access the tickets endpoint. So, we can easily do that
+
+00:07:41.480 --> 00:07:48.679
+by calling route middleware. We will specify the auth sanctum middleware, and then we will call
+
+00:07:48.679 --> 00:07:56.279
+api resource. So, this is going to ensure that in order to access our tickets resources, the request
+
+00:07:56.279 --> 00:08:04.119
+has to include a sanctum token. So, how do we do that then? Well, let's go to our tickets request.
+
+00:08:04.119 --> 00:08:10.920
+Let's go to our headers, and let's add the accept header. The value will be application
+
+00:08:10.920 --> 00:08:17.160
+slash json. Let's go ahead, and let's just send that request. We will get a response back saying
+
+00:08:17.160 --> 00:08:22.679
+unauthenticated, but to show that we are authenticated, let's go to authorization here,
+
+00:08:22.679 --> 00:08:29.079
+and we are going to set the type to a bearer token. We will paste in the token value that we got
+
+00:08:29.079 --> 00:08:34.280
+whenever we signed in. Let's go ahead and save this, and whenever we send this request now,
+
+00:08:34.280 --> 00:08:40.679
+we will see that we get the response that we were hoping for. We get all of our tickets. So,
+
+00:08:40.679 --> 00:08:45.400
+the only time that the user will need to provide their email address and their password is whenever
+
+00:08:45.400 --> 00:08:52.280
+they sign in hitting the login endpoint. They will get that token that the client will then
+
+00:08:52.280 --> 00:08:58.359
+need to include as a bearer token for every request. That sounds cumbersome, but that's
+
+00:08:58.440 --> 00:09:03.960
+just how it is. That's a whole lot easier than having to send email and password for
+
+00:09:03.960 --> 00:09:10.119
+every request going forward. In the next episode, we will look at how to revoke those tokens.
+

@@ -1,0 +1,1628 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:11.300
+Writing documentation is probably the most boring thing that we can do for any project,
+
+00:00:11.300 --> 00:00:14.100
+but unfortunately it's something we have to do.
+
+00:00:14.100 --> 00:00:18.420
+I would prefer to just move on and do something else, but this is an API.
+
+00:00:18.420 --> 00:00:23.740
+We need to provide documentation so that people who want to use the API will know how to use
+
+00:00:23.740 --> 00:00:25.200
+the API.
+
+00:00:25.200 --> 00:00:29.160
+So we could of course write it ourselves, but no, we don't want to.
+
+00:00:29.160 --> 00:00:32.200
+Instead we are going to use a package called scribe.
+
+00:00:32.200 --> 00:00:36.880
+This generates API documentation from our Laravel codebase.
+
+00:00:36.880 --> 00:00:42.080
+So this is going to do a lot of the work for us, but there's still some things that we
+
+00:00:42.080 --> 00:00:44.040
+will have to do manually.
+
+00:00:44.040 --> 00:00:47.880
+But first things first, let's install scribe.
+
+00:00:47.880 --> 00:00:51.400
+And we can do so with composer require, dash dash dev.
+
+00:00:51.400 --> 00:00:56.279
+And then the package is called knuckles wtf slash scribe.
+
+00:00:56.279 --> 00:00:58.419
+And then we will want to publish the config.
+
+00:00:58.419 --> 00:01:01.180
+So with artisan, we will vendor publish.
+
+00:01:01.180 --> 00:01:04.379
+The tag is scribe dash config.
+
+00:01:04.379 --> 00:01:06.980
+And let's take a look at the config.
+
+00:01:06.980 --> 00:01:09.139
+It's called simply scribe.php.
+
+00:01:09.139 --> 00:01:13.660
+It is inside of our config folder, and it's a configuration file.
+
+00:01:13.660 --> 00:01:16.739
+There's a lot of things here though that we need to talk about.
+
+00:01:16.739 --> 00:01:18.220
+So first is the title.
+
+00:01:18.220 --> 00:01:23.260
+This is, as it says, the HTML title element for the generated documentation.
+
+00:01:23.260 --> 00:01:30.220
+So let's just say tickets please, API documentation, and we'll leave everything else alone.
+
+00:01:30.220 --> 00:01:35.379
+This base URL, there's another base URL that we will talk about here in a moment.
+
+00:01:35.379 --> 00:01:39.180
+And the next is routes, and this is where things get interesting.
+
+00:01:39.180 --> 00:01:44.580
+Because scribe is going to look at our routes, and it is going to automatically generate
+
+00:01:44.580 --> 00:01:47.400
+documentation based upon those routes.
+
+00:01:47.400 --> 00:01:53.720
+So the routes go to controllers, and some of those controllers use request classes.
+
+00:01:53.720 --> 00:01:58.040
+So it's going to document all of those things, and it needs to know where to look.
+
+00:01:58.040 --> 00:02:03.400
+Now thankfully, there's nothing that we need to change here because all of our routes begin with API.
+
+00:02:03.400 --> 00:02:04.599
+So we're good here.
+
+00:02:04.599 --> 00:02:06.160
+We can keep on going down.
+
+00:02:06.160 --> 00:02:09.839
+But then if we wanted to include any routes, we could do that.
+
+00:02:09.839 --> 00:02:13.639
+Or if we wanted to exclude any routes, we could do that as well.
+
+00:02:13.639 --> 00:02:17.639
+But then we can also specify how our docs are generated.
+
+00:02:17.639 --> 00:02:19.759
+Are they generated as static files?
+
+00:02:19.759 --> 00:02:26.360
+Or if we use Laravel, then it's going to create a blade view so that we can add routing and authentication.
+
+00:02:26.360 --> 00:02:32.000
+I'm going to go with the static route because me personally, I like to not have to authenticate
+
+00:02:32.000 --> 00:02:34.399
+to look at the API docs.
+
+00:02:34.399 --> 00:02:37.119
+So that's what I'm going to leave it as.
+
+00:02:37.119 --> 00:02:42.559
+And you can choose where you want those static documents to be published.
+
+00:02:42.559 --> 00:02:47.199
+So public slash docs is fine for me, but then there's options for the Laravel approach.
+
+00:02:47.199 --> 00:02:50.919
+And then let's scroll on down to this try it out.
+
+00:02:50.919 --> 00:02:55.880
+This is a nice little feature so that if the user has an API token,
+
+00:02:55.880 --> 00:02:59.919
+they could try the endpoints from our documentation.
+
+00:02:59.919 --> 00:03:02.279
+So I'm going to leave that as enabled.
+
+00:03:02.279 --> 00:03:06.320
+And here, the base URL needs to be something that works.
+
+00:03:06.320 --> 00:03:12.080
+So for us, that is going to be localhost port 8000, or at least for me,
+
+00:03:12.080 --> 00:03:13.399
+this is what it's going to be.
+
+00:03:13.399 --> 00:03:18.279
+Of course, if we were publishing these out on the internet for people to actually use,
+
+00:03:18.279 --> 00:03:22.000
+this would need to be the base URL that they would access.
+
+00:03:22.000 --> 00:03:24.080
+But this is going to be okay for us.
+
+00:03:24.080 --> 00:03:28.080
+Use CSRF? No, because we don't have any CSRF.
+
+00:03:28.080 --> 00:03:32.520
+And that's okay, because CSRF attacks really depend upon cookies.
+
+00:03:32.520 --> 00:03:33.679
+We're not using cookies.
+
+00:03:33.679 --> 00:03:35.199
+And then authentication.
+
+00:03:35.199 --> 00:03:37.440
+This is the important part.
+
+00:03:37.440 --> 00:03:41.479
+So this asks, how is your API authenticated?
+
+00:03:41.479 --> 00:03:47.199
+And then it says, set this to true if any endpoints in your API use authentication.
+
+00:03:47.199 --> 00:03:49.119
+So practically all of ours does.
+
+00:03:49.119 --> 00:03:51.000
+So that is, of course, going to be true.
+
+00:03:51.000 --> 00:03:53.919
+But then the next option is the default.
+
+00:03:53.919 --> 00:03:55.039
+What is the default?
+
+00:03:55.039 --> 00:04:00.559
+Is the default going to be that everything is authenticated or that nothing is authenticated?
+
+00:04:00.559 --> 00:04:04.880
+Well, practically everything is requiring the user to sign in.
+
+00:04:04.880 --> 00:04:06.960
+So we're going to set the default as true.
+
+00:04:06.960 --> 00:04:10.639
+Now, not every endpoint requires the user to authenticate.
+
+00:04:10.639 --> 00:04:16.200
+For example, the login endpoint, we don't want to limit that to authenticated users.
+
+00:04:16.200 --> 00:04:19.320
+So we'll have to make note of that in our documentation.
+
+00:04:19.320 --> 00:04:20.880
+But that's easy enough to do.
+
+00:04:20.880 --> 00:04:24.640
+But then we get to specify how that authentication is handled.
+
+00:04:24.640 --> 00:04:28.880
+It is a bearer token, and it is inside of the authorization header.
+
+00:04:28.880 --> 00:04:32.119
+So the name is going to have the authorization value.
+
+00:04:32.119 --> 00:04:36.679
+And then here, we can add an API key to our environment,
+
+00:04:36.679 --> 00:04:38.600
+or we can hard code this.
+
+00:04:38.600 --> 00:04:40.160
+And I'm just going to hard code this.
+
+00:04:40.160 --> 00:04:43.799
+And we're going to start with just a normal user.
+
+00:04:43.799 --> 00:04:49.600
+And ideally, we won't, but I'll show you why we don't want to use a normal user.
+
+00:04:49.600 --> 00:04:53.920
+So let's first of all, get a token there so that we can copy that
+
+00:04:53.920 --> 00:04:57.600
+and paste it inside of our scribe config.
+
+00:04:57.600 --> 00:05:02.839
+And then this placeholder is just what is going to be used in the documentation
+
+00:05:02.839 --> 00:05:06.359
+any time that the API key is used.
+
+00:05:06.359 --> 00:05:09.679
+So in the documentation, it's going to say your auth key.
+
+00:05:09.679 --> 00:05:10.320
+That's fine.
+
+00:05:10.320 --> 00:05:11.239
+It's arbitrary.
+
+00:05:11.239 --> 00:05:12.600
+You can change that to whatever.
+
+00:05:12.600 --> 00:05:15.920
+And then everything else is going to be OK.
+
+00:05:15.920 --> 00:05:17.559
+So let's close that.
+
+00:05:17.559 --> 00:05:21.119
+And now let's generate our documentation.
+
+00:05:21.119 --> 00:05:26.440
+So we will use Artisan to run the scribe generate command.
+
+00:05:26.440 --> 00:05:28.679
+And we're going to see some red flash by.
+
+00:05:28.679 --> 00:05:31.079
+So let's scroll up, and let's take a look at the red.
+
+00:05:31.079 --> 00:05:36.200
+It says that there was an attempt to read property ID on null.
+
+00:05:36.200 --> 00:05:41.239
+And it was as it was processing the post request on our tickets controller.
+
+00:05:41.239 --> 00:05:44.679
+Well, we don't use the ID in our tickets controller.
+
+00:05:44.679 --> 00:05:46.239
+Let's go to our ticket controller.
+
+00:05:46.239 --> 00:05:47.640
+Let's go to the store method.
+
+00:05:47.640 --> 00:05:53.239
+And yeah, I mean, we check if the user is able to create a ticket.
+
+00:05:53.239 --> 00:05:56.559
+But we don't do anything with the ID here.
+
+00:05:56.559 --> 00:06:01.480
+But let's go to the store ticket request class.
+
+00:06:01.480 --> 00:06:06.040
+And we do use the ID here, right here.
+
+00:06:06.040 --> 00:06:11.359
+As we are dynamically building our rules, we refer to the user ID.
+
+00:06:11.359 --> 00:06:15.279
+So this might seem a little weird because, well, the user is authenticated.
+
+00:06:15.279 --> 00:06:19.399
+We gave scribe an API token to use to authenticate
+
+00:06:19.399 --> 00:06:22.480
+and should be able to document all of this stuff.
+
+00:06:22.480 --> 00:06:23.760
+But here's the thing.
+
+00:06:23.760 --> 00:06:26.720
+So scribe is looking at our ticket controller,
+
+00:06:26.720 --> 00:06:29.279
+and it is processing the store request.
+
+00:06:29.279 --> 00:06:34.679
+It sees that the store request accepts a store ticket request.
+
+00:06:34.679 --> 00:06:38.440
+So it's not going to execute this method at all.
+
+00:06:38.440 --> 00:06:43.679
+Instead, it is going to process the rules on the store ticket request.
+
+00:06:43.679 --> 00:06:48.079
+Because when it comes to a request, that's really all that matters.
+
+00:06:48.079 --> 00:06:50.079
+What are the rules for that request?
+
+00:06:50.079 --> 00:06:57.000
+So as scribe starts to process these rules, it's encountering this ID.
+
+00:06:57.000 --> 00:07:00.799
+Well, we get the ID from the user from the request.
+
+00:07:00.799 --> 00:07:03.320
+And if there is no request, there is no user.
+
+00:07:03.359 --> 00:07:07.359
+So this is one thing that we need to be aware of,
+
+00:07:07.359 --> 00:07:11.279
+because now we need access to that user object.
+
+00:07:11.279 --> 00:07:14.959
+And the way that we can do that is through the auth facade.
+
+00:07:14.959 --> 00:07:18.040
+So we'll just call user, and that's going to solve our problem.
+
+00:07:18.040 --> 00:07:21.079
+Although we've used the ID someplace else,
+
+00:07:21.079 --> 00:07:24.559
+or we've used the request to get the user.
+
+00:07:24.559 --> 00:07:27.920
+And what is that? Update ticket request?
+
+00:07:27.920 --> 00:07:29.160
+Yes, right there.
+
+00:07:29.160 --> 00:07:33.200
+So we need to change this to use the auth facade as well.
+
+00:07:33.200 --> 00:07:34.600
+But that's easy enough to do.
+
+00:07:34.600 --> 00:07:36.119
+Simple change, we're done.
+
+00:07:36.119 --> 00:07:39.320
+And so now let's generate our API.
+
+00:07:39.320 --> 00:07:40.920
+We won't see any errors.
+
+00:07:40.920 --> 00:07:42.839
+I didn't see any red fly by.
+
+00:07:42.839 --> 00:07:44.279
+So we are good to go.
+
+00:07:44.279 --> 00:07:47.760
+And we can view our documentation in the browser.
+
+00:07:47.760 --> 00:07:52.160
+So let's go to localhost 8000 docs.
+
+00:07:52.160 --> 00:07:54.559
+And here is our documentation.
+
+00:07:54.559 --> 00:07:58.760
+But things are, well, it's a little messy.
+
+00:07:58.760 --> 00:08:01.000
+Because we have this introduction, which is great.
+
+00:08:01.000 --> 00:08:03.000
+We have this authenticating request,
+
+00:08:03.000 --> 00:08:07.079
+which tells the user how to authenticate their requests,
+
+00:08:07.079 --> 00:08:08.600
+which that's great too.
+
+00:08:08.600 --> 00:08:10.200
+But let's look at the endpoints.
+
+00:08:10.200 --> 00:08:13.320
+Not only is this all just kind of thrown in there,
+
+00:08:13.320 --> 00:08:15.359
+but a lot of these have the same text.
+
+00:08:15.359 --> 00:08:17.959
+Display a listing of the resource.
+
+00:08:17.959 --> 00:08:19.200
+That's not useful.
+
+00:08:19.200 --> 00:08:21.519
+Display the specified resource.
+
+00:08:21.519 --> 00:08:23.359
+Update the specified resource.
+
+00:08:23.359 --> 00:08:25.600
+So there's several things that we need to do here.
+
+00:08:25.600 --> 00:08:27.440
+First of all, we need to categorize
+
+00:08:27.440 --> 00:08:29.359
+or organize all of our endpoints
+
+00:08:29.359 --> 00:08:33.000
+so that we have like the authentication endpoints.
+
+00:08:33.000 --> 00:08:36.679
+And then we have managing tickets and then managing users.
+
+00:08:36.679 --> 00:08:39.520
+But then also we need some useful text here.
+
+00:08:39.520 --> 00:08:43.159
+If we take a look at the post API slash login,
+
+00:08:43.159 --> 00:08:46.280
+we see that this says that it requires authentication,
+
+00:08:46.280 --> 00:08:47.840
+which we know it doesn't.
+
+00:08:47.840 --> 00:08:51.760
+Users can't be authenticated in order to sign in.
+
+00:08:51.760 --> 00:08:54.119
+So the first thing we need to do
+
+00:08:54.119 --> 00:08:56.960
+is address the login and logout
+
+00:08:56.960 --> 00:08:59.919
+so that it has the correct information
+
+00:08:59.919 --> 00:09:01.799
+and the logout does,
+
+00:09:01.799 --> 00:09:04.840
+but still we want to organize these things.
+
+00:09:04.840 --> 00:09:08.479
+So let's start with the auth controller.
+
+00:09:08.479 --> 00:09:11.520
+Let's scroll on down to our login method.
+
+00:09:11.520 --> 00:09:15.440
+And then we essentially want to add some documentation
+
+00:09:15.440 --> 00:09:18.559
+and we can add documentation in a couple of different ways.
+
+00:09:18.559 --> 00:09:21.679
+We can use doc blocks, which is what I'm going to use,
+
+00:09:21.679 --> 00:09:23.400
+but we can also use attributes
+
+00:09:23.400 --> 00:09:25.880
+and we don't have to use just doc blocks
+
+00:09:25.880 --> 00:09:27.119
+or just attributes.
+
+00:09:27.119 --> 00:09:28.760
+You can mix and match if you want,
+
+00:09:28.760 --> 00:09:30.039
+but I like doc blocks
+
+00:09:30.039 --> 00:09:32.359
+or at least that's what I'm most familiar with.
+
+00:09:32.359 --> 00:09:34.400
+So that's what we're going to do.
+
+00:09:34.400 --> 00:09:36.960
+So the first thing I want to do is specify
+
+00:09:36.960 --> 00:09:38.599
+that this login method
+
+00:09:38.599 --> 00:09:40.799
+does not require you to be authenticated.
+
+00:09:40.799 --> 00:09:44.960
+So we have a notation called unauthenticated.
+
+00:09:44.960 --> 00:09:47.880
+And so whenever we generate our documentation,
+
+00:09:47.880 --> 00:09:51.119
+this requires authentication is going to go away,
+
+00:09:51.119 --> 00:09:54.320
+but we also want to organize these things.
+
+00:09:54.320 --> 00:09:57.119
+So let's say for the text,
+
+00:09:57.119 --> 00:09:59.679
+because as far as the text over here is concerned,
+
+00:09:59.679 --> 00:10:01.239
+post API login,
+
+00:10:01.239 --> 00:10:04.000
+that's the title of this particular endpoint.
+
+00:10:04.000 --> 00:10:05.919
+And I don't like that.
+
+00:10:05.919 --> 00:10:08.559
+I mean, because it's the same information right here.
+
+00:10:08.559 --> 00:10:11.380
+So instead I want this to simply say just login.
+
+00:10:11.380 --> 00:10:15.159
+So the title for this endpoint is going to be login.
+
+00:10:15.159 --> 00:10:17.200
+Then we can add some extra information
+
+00:10:17.200 --> 00:10:19.200
+like authenticates the user
+
+00:10:19.200 --> 00:10:22.179
+and returns the user's API token.
+
+00:10:22.179 --> 00:10:25.820
+But then we can create a group with group
+
+00:10:25.820 --> 00:10:28.539
+and the group will be simply authentication.
+
+00:10:28.539 --> 00:10:30.099
+And let's see what else.
+
+00:10:30.099 --> 00:10:34.679
+This does not have an example response.
+
+00:10:34.679 --> 00:10:37.559
+This certainly gave us an example request,
+
+00:10:37.559 --> 00:10:39.500
+which if we look at the body parameters,
+
+00:10:39.500 --> 00:10:41.500
+we see that the email is a string
+
+00:10:41.500 --> 00:10:43.539
+and it must be a valid email address.
+
+00:10:43.539 --> 00:10:45.059
+And the password is a string
+
+00:10:45.059 --> 00:10:47.380
+and it must be at least eight characters.
+
+00:10:47.380 --> 00:10:48.859
+You know, it's getting that information
+
+00:10:48.859 --> 00:10:51.059
+from this login user request.
+
+00:10:51.059 --> 00:10:53.099
+It processed the rules here
+
+00:10:53.099 --> 00:10:56.900
+and it generated the documentation based upon those rules.
+
+00:10:56.900 --> 00:10:58.979
+So a lot of this we didn't have to do.
+
+00:10:58.979 --> 00:11:01.700
+We just need to do some other things.
+
+00:11:01.700 --> 00:11:04.260
+So for our login method,
+
+00:11:04.260 --> 00:11:06.979
+we also want to supply a response.
+
+00:11:06.979 --> 00:11:10.419
+We can also say that for a 200 response,
+
+00:11:10.419 --> 00:11:14.099
+you know, it's going to be a certain kind of response.
+
+00:11:14.099 --> 00:11:17.200
+And if we wanted to supply the response structure
+
+00:11:17.200 --> 00:11:18.900
+for another kind of status code,
+
+00:11:18.900 --> 00:11:20.580
+we could do that as well.
+
+00:11:21.099 --> 00:11:21.940
+But we're going to keep things simple.
+
+00:11:21.940 --> 00:11:24.140
+So as far as the sample response,
+
+00:11:24.140 --> 00:11:25.979
+I'm going to take out the token.
+
+00:11:25.979 --> 00:11:28.140
+And I don't remember what that placeholder was,
+
+00:11:28.140 --> 00:11:30.940
+but I think it was like your auth key
+
+00:11:30.940 --> 00:11:31.979
+or something like that.
+
+00:11:31.979 --> 00:11:35.380
+So we'll just stick with that message and status.
+
+00:11:35.380 --> 00:11:36.320
+Okay, we're good there.
+
+00:11:36.320 --> 00:11:40.820
+So let's copy this block of comments
+
+00:11:40.820 --> 00:11:43.380
+and let's paste it for the log out.
+
+00:11:43.380 --> 00:11:45.400
+Now, of course, the response is going to be different.
+
+00:11:45.400 --> 00:11:48.140
+In fact, we just return an okay.
+
+00:11:48.140 --> 00:11:50.859
+So our response is just going to be an empty object.
+
+00:11:50.859 --> 00:11:53.179
+The group is still going to be authentication.
+
+00:11:53.179 --> 00:11:55.140
+This requires authentication.
+
+00:11:55.140 --> 00:11:57.299
+So we will get rid of the unauthenticated.
+
+00:11:57.299 --> 00:12:00.500
+And for this, we'll just call it sign out.
+
+00:12:00.500 --> 00:12:03.380
+And we'll say that this signs out the user
+
+00:12:03.380 --> 00:12:06.679
+and destroys the API token.
+
+00:12:06.679 --> 00:12:11.020
+So with that done, let's generate our documentation again.
+
+00:12:11.020 --> 00:12:12.299
+And we're going to start to see
+
+00:12:12.299 --> 00:12:15.539
+that things are getting a little more organized.
+
+00:12:15.539 --> 00:12:17.780
+So now we have this authentication section,
+
+00:12:18.419 --> 00:12:21.020
+which has just the login and the log out.
+
+00:12:21.020 --> 00:12:22.659
+If we look at the login,
+
+00:12:22.659 --> 00:12:25.099
+we still see the body parameters, which is fine,
+
+00:12:25.099 --> 00:12:29.059
+but we also see a sample response for a status of 200,
+
+00:12:29.059 --> 00:12:31.940
+where the data, the token, the message, and status.
+
+00:12:31.940 --> 00:12:33.260
+So that's great.
+
+00:12:33.260 --> 00:12:34.099
+That's awesome.
+
+00:12:34.099 --> 00:12:37.559
+So now let's focus on our ticket controller.
+
+00:12:37.559 --> 00:12:40.099
+So if we take a look at our endpoints,
+
+00:12:40.099 --> 00:12:42.580
+display a listing of the resource.
+
+00:12:42.580 --> 00:12:43.979
+Here is our tickets.
+
+00:12:43.979 --> 00:12:46.099
+And the really cool thing here is that
+
+00:12:46.099 --> 00:12:48.859
+we don't have to worry about a sample response.
+
+00:12:48.859 --> 00:12:50.979
+It's automatically giving us one.
+
+00:12:50.979 --> 00:12:53.700
+So we're good as far as that is concerned,
+
+00:12:53.700 --> 00:12:55.460
+but there's a lot that we need to do here
+
+00:12:55.460 --> 00:12:59.059
+because we have the sort query parameter.
+
+00:12:59.059 --> 00:13:00.020
+We have filters.
+
+00:13:00.020 --> 00:13:01.539
+We need to document all of those
+
+00:13:01.539 --> 00:13:03.460
+because those definitely aren't here.
+
+00:13:03.460 --> 00:13:07.340
+And really, Scribe has no idea about those things.
+
+00:13:07.340 --> 00:13:10.020
+So we'll start with our index method
+
+00:13:10.020 --> 00:13:14.500
+and we will give this a title of Get Tickets.
+
+00:13:14.500 --> 00:13:17.179
+Or maybe we should say Get All Tickets
+
+00:13:17.179 --> 00:13:19.260
+because that is exactly what it's going to do.
+
+00:13:19.260 --> 00:13:23.059
+And then we could set this as a group of managing tickets.
+
+00:13:23.059 --> 00:13:26.500
+And then we need to start specifying the query parameters.
+
+00:13:26.500 --> 00:13:29.099
+And we do that with query param.
+
+00:13:29.099 --> 00:13:32.380
+And our first one is our sort, which is a string.
+
+00:13:32.380 --> 00:13:34.539
+And then our documentation for that
+
+00:13:34.539 --> 00:13:37.140
+is going to be that the data fields,
+
+00:13:37.140 --> 00:13:40.299
+actually it could be a field or multiple fields,
+
+00:13:40.299 --> 00:13:44.460
+to sort by, we need to separate multiple fields
+
+00:13:45.419 --> 00:13:48.659
+with commas and denote descending,
+
+00:13:48.659 --> 00:13:51.619
+sort with a minus sign.
+
+00:13:51.619 --> 00:13:53.460
+And then we can give an example of that.
+
+00:13:53.460 --> 00:13:55.820
+And let's say that we'll sort by title
+
+00:13:55.820 --> 00:13:58.419
+and then created at descending.
+
+00:13:58.419 --> 00:14:00.859
+So that's going to be that.
+
+00:14:00.859 --> 00:14:05.059
+And if we generate our documentation, let's refresh,
+
+00:14:05.059 --> 00:14:08.299
+we will now see our managing tickets, Get All Tickets.
+
+00:14:08.299 --> 00:14:11.500
+We have the query parameters here, the data fields,
+
+00:14:11.500 --> 00:14:13.940
+you know, that description that we specified,
+
+00:14:13.979 --> 00:14:16.940
+and then the example, title and created at.
+
+00:14:16.940 --> 00:14:19.580
+Although maybe we should do this,
+
+00:14:19.580 --> 00:14:23.539
+sort equals and then title and created at.
+
+00:14:23.539 --> 00:14:26.219
+So we can supply an example
+
+00:14:26.219 --> 00:14:29.900
+or Scribe will generate an example for us.
+
+00:14:29.900 --> 00:14:32.380
+But there are some times that we don't want
+
+00:14:32.380 --> 00:14:33.780
+or need an example.
+
+00:14:33.780 --> 00:14:37.059
+Like for example, filtering by the status,
+
+00:14:37.059 --> 00:14:39.500
+you know, because we have just certain values
+
+00:14:39.500 --> 00:14:42.859
+and there's really no reason to include an example here.
+
+00:14:42.859 --> 00:14:45.739
+So we can say that to filter by status code
+
+00:14:45.739 --> 00:14:49.900
+and that would be A, C, H or X.
+
+00:14:49.900 --> 00:14:52.859
+And then we could say that we don't want any examples.
+
+00:14:52.859 --> 00:14:54.900
+So we will say no-example.
+
+00:14:54.900 --> 00:14:57.820
+But then we also have another query parameter
+
+00:14:57.820 --> 00:14:58.940
+for the filter.
+
+00:14:58.940 --> 00:15:02.340
+This is for the title and this is filter by title.
+
+00:15:02.340 --> 00:15:04.619
+Wildcards are supported.
+
+00:15:04.619 --> 00:15:06.979
+And then we can supply an example
+
+00:15:06.979 --> 00:15:09.500
+to where we can have an asterisk and like fix,
+
+00:15:09.500 --> 00:15:11.820
+the idea of fix this particular problem.
+
+00:15:11.820 --> 00:15:12.780
+Then what else do we have?
+
+00:15:13.619 --> 00:15:17.059
+We have created at, you know, we have enough examples here.
+
+00:15:17.059 --> 00:15:18.539
+We're not going to document everything
+
+00:15:18.539 --> 00:15:21.179
+because that would, you don't wanna see that on screen.
+
+00:15:21.179 --> 00:15:24.020
+So we'll leave this as is,
+
+00:15:24.020 --> 00:15:28.659
+but let's copy this and let's paste it for the store method.
+
+00:15:28.659 --> 00:15:30.780
+And of course, there are several things
+
+00:15:30.780 --> 00:15:32.099
+that we need to change here.
+
+00:15:32.099 --> 00:15:34.900
+Like this is not getting all tickets.
+
+00:15:34.900 --> 00:15:36.580
+This is create a ticket.
+
+00:15:36.580 --> 00:15:40.419
+And then for the text, we could say creates a new ticket.
+
+00:15:40.419 --> 00:15:45.419
+The users can only create tickets for themselves
+
+00:15:45.659 --> 00:15:50.659
+and managers can create tickets for any user.
+
+00:15:50.900 --> 00:15:54.619
+And then we will leave this in the managing tickets group,
+
+00:15:54.619 --> 00:15:56.219
+but let's get rid of everything else.
+
+00:15:56.219 --> 00:15:59.140
+I think we will need to provide a response here,
+
+00:15:59.140 --> 00:16:01.940
+but let's generate our documentation
+
+00:16:01.940 --> 00:16:03.340
+so that we can see this,
+
+00:16:03.340 --> 00:16:05.419
+because this is where we are going to spend
+
+00:16:05.419 --> 00:16:08.340
+most of our time here is for the create a ticket.
+
+00:16:08.340 --> 00:16:10.260
+Because if we scroll on down, this is great.
+
+00:16:11.099 --> 00:16:12.099
+Authorization, you know, all that stuff,
+
+00:16:12.099 --> 00:16:13.580
+but look at the body parameters,
+
+00:16:13.580 --> 00:16:15.460
+data, object, optional.
+
+00:16:15.460 --> 00:16:16.659
+Data is not optional.
+
+00:16:16.659 --> 00:16:18.619
+Attributes, object, optional.
+
+00:16:18.619 --> 00:16:21.020
+That's not either because you have to have those
+
+00:16:21.020 --> 00:16:23.380
+in order to get to title, description, and status.
+
+00:16:23.380 --> 00:16:25.859
+Now notice that title, description, and status
+
+00:16:25.859 --> 00:16:27.140
+does not say optional.
+
+00:16:27.140 --> 00:16:31.059
+That's great, but we need to change our rules
+
+00:16:31.059 --> 00:16:34.700
+so that the data and the attributes are not optional.
+
+00:16:34.700 --> 00:16:36.460
+So that's easy enough to do.
+
+00:16:36.460 --> 00:16:40.380
+Inside of our rules, we can simply just add data
+
+00:16:40.380 --> 00:16:42.820
+to be required in an array,
+
+00:16:42.820 --> 00:16:47.580
+then data.attributes to be required in an array.
+
+00:16:47.580 --> 00:16:49.739
+And that's going to fix that particular problem.
+
+00:16:49.739 --> 00:16:51.539
+But let's also go back,
+
+00:16:51.539 --> 00:16:54.460
+because if we take a look at relationships,
+
+00:16:54.460 --> 00:16:56.460
+that says that it is optional.
+
+00:16:56.460 --> 00:16:59.700
+Author is optional, data is optional, and ID is optional.
+
+00:16:59.700 --> 00:17:04.420
+But notice here that it says that the ID must be one.
+
+00:17:04.420 --> 00:17:05.859
+Now the reason why we are seeing that
+
+00:17:06.260 --> 00:17:10.140
+is because we signed in with just a normal user.
+
+00:17:10.140 --> 00:17:12.900
+So everything is going to be based upon
+
+00:17:12.900 --> 00:17:16.180
+that user ID of one, and that's not what we want.
+
+00:17:16.180 --> 00:17:21.180
+Instead, what we really want is no specific information
+
+00:17:21.180 --> 00:17:23.459
+as far as the ID is concerned for the user.
+
+00:17:23.459 --> 00:17:28.459
+So we are going to use the manager to get an API token
+
+00:17:28.540 --> 00:17:31.260
+so that we can generate the documentation
+
+00:17:31.260 --> 00:17:33.300
+using that API token,
+
+00:17:33.300 --> 00:17:37.939
+which means that we need to go back to our scribe.php file
+
+00:17:37.939 --> 00:17:40.900
+and we need to find that token value right there.
+
+00:17:40.900 --> 00:17:44.060
+So we will replace that with the manager token.
+
+00:17:44.060 --> 00:17:47.420
+Let's generate our documentation once again.
+
+00:17:47.420 --> 00:17:51.939
+And so now the ID for the user or the author
+
+00:17:51.939 --> 00:17:54.300
+is going to be just ID.
+
+00:17:54.300 --> 00:17:55.380
+So that's great.
+
+00:17:55.380 --> 00:17:58.020
+And now we can see that data is not optional,
+
+00:17:58.020 --> 00:17:59.380
+attributes is not optional,
+
+00:17:59.380 --> 00:18:03.140
+but relationships is still optional as is author.
+
+00:18:03.780 --> 00:18:06.180
+But the problem here is that, you know,
+
+00:18:06.180 --> 00:18:09.060
+we are dynamically building our rules.
+
+00:18:09.060 --> 00:18:11.979
+So when the route is for our tickets controller,
+
+00:18:11.979 --> 00:18:13.939
+then for the author ID,
+
+00:18:13.939 --> 00:18:16.739
+it is data relationships author data ID.
+
+00:18:16.739 --> 00:18:18.180
+That is a lot to type.
+
+00:18:18.180 --> 00:18:22.619
+So really what we need to do is say is tickets controller
+
+00:18:22.619 --> 00:18:27.619
+to where we will set that to if the route is tickets.store.
+
+00:18:27.739 --> 00:18:30.339
+So we could use that variable there.
+
+00:18:30.339 --> 00:18:33.300
+And then we almost need to do something like this
+
+00:18:33.300 --> 00:18:37.020
+to check if it is the tickets controller,
+
+00:18:37.020 --> 00:18:41.619
+then we will add in the necessary rules for that structure
+
+00:18:41.619 --> 00:18:45.699
+so that we will have data relationships is required
+
+00:18:45.699 --> 00:18:46.859
+and an array.
+
+00:18:46.859 --> 00:18:48.739
+Then we will add in the others,
+
+00:18:48.739 --> 00:18:49.900
+which what was it?
+
+00:18:49.900 --> 00:18:54.900
+As relationships.author and then .data.
+
+00:18:54.900 --> 00:18:58.180
+But then too, these rules have to be in order.
+
+00:18:58.180 --> 00:19:02.219
+So we can't really include this dynamic rule here.
+
+00:19:02.219 --> 00:19:06.500
+We need to do that down here to where we will say rules
+
+00:19:06.500 --> 00:19:08.780
+and then build this dynamically.
+
+00:19:08.780 --> 00:19:11.540
+But this is going to work just fine.
+
+00:19:11.540 --> 00:19:13.380
+And this is going to make it work
+
+00:19:13.380 --> 00:19:15.180
+for both of those controllers.
+
+00:19:15.180 --> 00:19:17.140
+So we can generate this again.
+
+00:19:17.140 --> 00:19:18.300
+Let's refresh.
+
+00:19:18.300 --> 00:19:20.660
+We will now see that attributes
+
+00:19:20.660 --> 00:19:23.300
+and relationships are required.
+
+00:19:23.300 --> 00:19:26.300
+If we drill down to author and data and ID,
+
+00:19:26.300 --> 00:19:29.979
+let's try to find where we create a ticket
+
+00:19:29.979 --> 00:19:32.500
+for the author's ticket controller.
+
+00:19:32.500 --> 00:19:35.180
+So that would be store a newly created,
+
+00:19:35.180 --> 00:19:36.180
+there it is right there.
+
+00:19:36.180 --> 00:19:37.819
+Okay, so if we scroll on down here,
+
+00:19:37.819 --> 00:19:39.699
+we can see that data and attributes,
+
+00:19:39.699 --> 00:19:42.660
+title, description and status are all needed here.
+
+00:19:42.660 --> 00:19:45.819
+But the relationships structure is not listed here
+
+00:19:45.819 --> 00:19:48.380
+because of course it was dynamically created.
+
+00:19:48.380 --> 00:19:50.500
+So we are good to go,
+
+00:19:50.500 --> 00:19:53.619
+except I want to add in some descriptions
+
+00:19:53.619 --> 00:19:56.020
+for title, description and status.
+
+00:19:56.699 --> 00:19:58.180
+So we can do this in a couple of different ways.
+
+00:19:58.180 --> 00:20:01.060
+The first is to use just dot blocks.
+
+00:20:01.060 --> 00:20:03.500
+So for our store ticket request,
+
+00:20:03.500 --> 00:20:06.219
+we could add some dot blocks.
+
+00:20:06.219 --> 00:20:09.579
+And instead of using the query param that we did
+
+00:20:09.579 --> 00:20:11.819
+for the index method on our ticket controller,
+
+00:20:11.819 --> 00:20:13.500
+we would have a body param.
+
+00:20:13.500 --> 00:20:16.420
+And then we can specify the structure,
+
+00:20:16.420 --> 00:20:19.979
+which let's just try the title here.
+
+00:20:19.979 --> 00:20:23.300
+So we'll do title and we'll say that it is a string
+
+00:20:23.300 --> 00:20:25.939
+and the ticket's title.
+
+00:20:26.739 --> 00:20:28.979
+And I don't think we necessarily need an example
+
+00:20:28.979 --> 00:20:31.380
+so we can say no example there.
+
+00:20:31.380 --> 00:20:33.060
+And so that's going to be great
+
+00:20:33.060 --> 00:20:35.219
+if we generate our documentation
+
+00:20:35.219 --> 00:20:38.780
+and let's look at our body parameters.
+
+00:20:38.780 --> 00:20:41.579
+We can see that the title now has a description,
+
+00:20:41.579 --> 00:20:44.020
+the ticket's title and there's no example,
+
+00:20:44.020 --> 00:20:46.180
+but now it says optional.
+
+00:20:46.180 --> 00:20:47.579
+So we have to go back here.
+
+00:20:47.579 --> 00:20:48.979
+We have to say string,
+
+00:20:48.979 --> 00:20:51.699
+but before we say string, we have to say required.
+
+00:20:51.699 --> 00:20:54.180
+Then we have to generate our docs again
+
+00:20:54.180 --> 00:20:56.020
+so that then we can refresh
+
+00:20:56.020 --> 00:20:58.579
+and we can hopefully see that the attribute
+
+00:20:58.579 --> 00:21:02.060
+is now not optional, but I guess I got it mixed up.
+
+00:21:02.060 --> 00:21:04.859
+Looks like the type needs to come before required,
+
+00:21:04.859 --> 00:21:06.060
+but you get the idea.
+
+00:21:06.060 --> 00:21:07.339
+We can do it that way.
+
+00:21:07.339 --> 00:21:11.140
+And that kind of takes away from what we were doing before.
+
+00:21:11.140 --> 00:21:13.939
+I mean, as far as using the rules,
+
+00:21:13.939 --> 00:21:17.579
+because the rules state that yes, the title is required.
+
+00:21:17.579 --> 00:21:19.619
+So this requires a little bit of extra stuff,
+
+00:21:19.619 --> 00:21:22.660
+but it still works, except that then
+
+00:21:22.660 --> 00:21:26.140
+what if we do something with the relationships
+
+00:21:26.140 --> 00:21:28.180
+so that we have relationships
+
+00:21:28.180 --> 00:21:29.979
+and I don't remember what this is.
+
+00:21:29.979 --> 00:21:32.420
+So let's just copy that whole thing
+
+00:21:32.420 --> 00:21:35.900
+and paste it in to our then that is an integer,
+
+00:21:35.900 --> 00:21:37.140
+which is required.
+
+00:21:37.140 --> 00:21:40.099
+And then we would say the author ID.
+
+00:21:40.099 --> 00:21:43.939
+Well, that's going to be fine for our ticket controller,
+
+00:21:43.939 --> 00:21:45.699
+but it's not going to be fine
+
+00:21:45.699 --> 00:21:47.859
+for our author ticket controller.
+
+00:21:47.859 --> 00:21:50.020
+Because now if we take a look at the documentation,
+
+00:21:50.020 --> 00:21:52.780
+we have data, we have attributes, which is fine,
+
+00:21:52.780 --> 00:21:54.579
+but then we have relationships.
+
+00:21:54.579 --> 00:21:58.739
+And relationships is not part of this particular request
+
+00:21:58.739 --> 00:22:01.739
+because the author came in as part of the URL,
+
+00:22:01.739 --> 00:22:02.619
+if you'll remember.
+
+00:22:02.619 --> 00:22:06.660
+So if we look at managing tickets though,
+
+00:22:06.660 --> 00:22:07.979
+then that's going to be fine.
+
+00:22:07.979 --> 00:22:11.819
+Relationships, author, data, ID, and the author ID.
+
+00:22:11.819 --> 00:22:14.819
+So if we dynamically generate our rules,
+
+00:22:14.819 --> 00:22:16.900
+we pretty much have to dynamically generate
+
+00:22:16.900 --> 00:22:18.979
+the documentation for those rules.
+
+00:22:18.979 --> 00:22:22.540
+So we can't really use our dot blocks here, which is fine,
+
+00:22:22.540 --> 00:22:25.500
+because we have a method that we can use
+
+00:22:25.500 --> 00:22:28.140
+that basically gives us the same thing.
+
+00:22:28.140 --> 00:22:30.819
+So it's called body parameters.
+
+00:22:30.819 --> 00:22:33.140
+And we basically need to return an array
+
+00:22:33.140 --> 00:22:35.979
+where the keys are the attributes.
+
+00:22:35.979 --> 00:22:38.859
+So it would be for the title and description
+
+00:22:38.859 --> 00:22:39.900
+and things like that.
+
+00:22:39.900 --> 00:22:41.900
+And then the values are going to be
+
+00:22:41.900 --> 00:22:45.180
+the individual documentation for those things.
+
+00:22:45.180 --> 00:22:47.500
+So we could do something like this
+
+00:22:47.500 --> 00:22:51.140
+to where we would return data, attributes, title,
+
+00:22:51.140 --> 00:22:52.619
+and then this would be an array
+
+00:22:52.619 --> 00:22:54.900
+to where we would have the description,
+
+00:22:54.900 --> 00:22:57.859
+which would be the tickets title,
+
+00:22:57.859 --> 00:23:01.140
+although we need this, the tickets title.
+
+00:23:01.140 --> 00:23:03.619
+And let's just have method here
+
+00:23:03.619 --> 00:23:06.900
+so that we can prove that this is coming from this method.
+
+00:23:06.900 --> 00:23:09.540
+And then, unfortunately, this doesn't work.
+
+00:23:09.540 --> 00:23:12.099
+It's supposed to according to the documentation,
+
+00:23:12.099 --> 00:23:13.619
+but it's not working.
+
+00:23:13.619 --> 00:23:15.900
+So evidently there is an issue,
+
+00:23:15.900 --> 00:23:17.979
+but we're going to leave this here
+
+00:23:17.979 --> 00:23:19.459
+and you'll see what this does,
+
+00:23:19.459 --> 00:23:24.380
+but we'll leave it here for when it does end up working again.
+
+00:23:24.380 --> 00:23:28.459
+So let's generate, let's go to our documentation.
+
+00:23:28.459 --> 00:23:31.500
+This is for the tickets controller.
+
+00:23:31.500 --> 00:23:33.739
+So if we drill down,
+
+00:23:33.739 --> 00:23:36.780
+we can see that our title now has this description,
+
+00:23:36.780 --> 00:23:38.020
+the tickets title,
+
+00:23:38.020 --> 00:23:40.219
+and we can tell that it's coming from that method,
+
+00:23:40.219 --> 00:23:42.819
+but the example is no example.
+
+00:23:42.819 --> 00:23:44.939
+But if we omit example,
+
+00:23:44.939 --> 00:23:47.540
+it's going to generate an example for us
+
+00:23:47.540 --> 00:23:49.020
+and that's not what we want.
+
+00:23:49.020 --> 00:23:52.020
+So we're just going to leave this as example as no example,
+
+00:23:52.020 --> 00:23:53.900
+because that is supposed to work.
+
+00:23:53.900 --> 00:23:56.660
+So with this general idea,
+
+00:23:56.660 --> 00:24:01.260
+what we can do then is have something like documentation,
+
+00:24:01.260 --> 00:24:04.180
+and then we will return documentation,
+
+00:24:04.180 --> 00:24:06.780
+but then we will dynamically build this
+
+00:24:06.780 --> 00:24:08.459
+so that first of all,
+
+00:24:08.459 --> 00:24:11.739
+we will have the title, the description and the status,
+
+00:24:11.739 --> 00:24:16.739
+but then we want to check if this route is tickets.store,
+
+00:24:17.420 --> 00:24:19.579
+then we will add to our documentation
+
+00:24:19.579 --> 00:24:23.099
+for the author ID through the relationships.
+
+00:24:23.099 --> 00:24:24.660
+And we'll have a description
+
+00:24:24.660 --> 00:24:27.260
+that says the author assigned to the ticket.
+
+00:24:27.260 --> 00:24:31.099
+And then we would have an example of no example.
+
+00:24:31.099 --> 00:24:34.219
+But if this route is not for our tickets controller,
+
+00:24:34.219 --> 00:24:36.859
+then we have a different key here.
+
+00:24:36.859 --> 00:24:38.699
+It is simply just author.
+
+00:24:38.699 --> 00:24:40.900
+And then that's going to be fine.
+
+00:24:40.900 --> 00:24:42.859
+We dynamically generate our rules.
+
+00:24:42.859 --> 00:24:45.260
+We dynamically generate our documentation.
+
+00:24:45.260 --> 00:24:49.020
+So if we look at the documentation for our create a ticket
+
+00:24:49.020 --> 00:24:50.619
+for our ticket controller,
+
+00:24:50.619 --> 00:24:53.140
+let's drill on down to our relationships.
+
+00:24:53.140 --> 00:24:55.979
+We see that the author assigned to the ticket,
+
+00:24:55.979 --> 00:24:57.739
+and this is the funny thing too.
+
+00:24:57.739 --> 00:24:59.739
+So the example here is zero.
+
+00:24:59.739 --> 00:25:01.060
+It's almost like it knows
+
+00:25:01.060 --> 00:25:02.979
+it's not supposed to have an example.
+
+00:25:02.979 --> 00:25:04.780
+So it just has a value of zero,
+
+00:25:04.780 --> 00:25:07.339
+but yet if we omit the example,
+
+00:25:07.339 --> 00:25:09.020
+it'll still generate one.
+
+00:25:09.020 --> 00:25:10.900
+It's just interesting.
+
+00:25:10.900 --> 00:25:12.420
+So if we go back to end points
+
+00:25:12.420 --> 00:25:14.300
+and take a look at the store,
+
+00:25:14.300 --> 00:25:17.099
+a newly created resource authors.
+
+00:25:17.099 --> 00:25:19.660
+Yes, this is for the author's ticket controller.
+
+00:25:19.660 --> 00:25:21.300
+Then we can see once again,
+
+00:25:21.300 --> 00:25:23.459
+we have the data attributes for the title,
+
+00:25:23.459 --> 00:25:24.780
+description and status,
+
+00:25:24.780 --> 00:25:28.339
+but yet then we have the author by itself.
+
+00:25:28.339 --> 00:25:31.060
+And so then it's just a matter of filling out
+
+00:25:31.060 --> 00:25:33.619
+the documentation for everything else,
+
+00:25:33.619 --> 00:25:35.140
+which I'm not going to do on screen
+
+00:25:35.140 --> 00:25:37.140
+because I wouldn't want to see me do it.
+
+00:25:37.140 --> 00:25:39.380
+I know that you don't want to see me do it,
+
+00:25:39.380 --> 00:25:41.459
+but the source code in GitHub
+
+00:25:41.459 --> 00:25:43.859
+will have all of the documentation
+
+00:25:43.859 --> 00:25:45.660
+just in case if you want to see it.
+

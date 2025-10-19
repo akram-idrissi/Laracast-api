@@ -1,0 +1,401 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:10.680
+Every application has a user interface, and APIs are no different.
+
+00:00:10.680 --> 00:00:16.879
+In fact, our user interface is very commonly used, it's the URL.
+
+00:00:16.879 --> 00:00:20.080
+And I know that that sounds a little weird, but when you think about it,
+
+00:00:20.080 --> 00:00:22.080
+our users are developers.
+
+00:00:22.080 --> 00:00:26.320
+They are developing applications that use our API.
+
+00:00:26.320 --> 00:00:31.959
+So, they do so by sending requests to our URLs.
+
+00:00:31.959 --> 00:00:37.320
+So, that is our user interface, and it's very important that we take some time
+
+00:00:37.320 --> 00:00:40.919
+and design our user interface, or our URLs.
+
+00:00:40.919 --> 00:00:45.560
+Because, you know, developers are going to be using it, and, well,
+
+00:00:45.560 --> 00:00:47.520
+you know how developers can be.
+
+00:00:47.520 --> 00:00:50.200
+So, how do we go about doing this?
+
+00:00:50.200 --> 00:00:53.439
+Well, let's think about what a URL is.
+
+00:00:53.439 --> 00:00:57.880
+It stands for Universal Resource Locator.
+
+00:00:57.880 --> 00:01:07.000
+It's really nothing more than some text that identifies something specific on the internet.
+
+00:01:07.000 --> 00:01:10.440
+And the key word here is resource.
+
+00:01:10.440 --> 00:01:11.639
+Well, what is a resource?
+
+00:01:11.639 --> 00:01:14.519
+Well, it really depends upon the application.
+
+00:01:14.519 --> 00:01:17.400
+We are writing a support ticket system.
+
+00:01:17.400 --> 00:01:22.800
+So, our resources are related to the support tickets.
+
+00:01:22.800 --> 00:01:26.559
+So, we could have a resource called tickets.
+
+00:01:26.559 --> 00:01:30.199
+That would be the individual support tickets that we have.
+
+00:01:30.199 --> 00:01:34.879
+We're going to have users, because users need to be able to submit tickets.
+
+00:01:34.879 --> 00:01:37.279
+Those would be a resource.
+
+00:01:37.279 --> 00:01:41.279
+We could have some support contracts that we need to keep track of.
+
+00:01:41.279 --> 00:01:44.720
+So, those could be a resource as well.
+
+00:01:44.720 --> 00:01:51.080
+And the really cool thing about this is that resources pretty much map directly
+
+00:01:51.080 --> 00:01:53.279
+to eloquent models.
+
+00:01:53.279 --> 00:01:55.400
+If you'll remember from the first episode,
+
+00:01:55.400 --> 00:02:00.760
+I said that web APIs are really nothing more than glorified data access layers.
+
+00:02:00.760 --> 00:02:01.919
+Well, this is why.
+
+00:02:01.919 --> 00:02:05.599
+Our resources are typically eloquent models.
+
+00:02:05.599 --> 00:02:07.839
+So, all we need to do is create some models and
+
+00:02:07.839 --> 00:02:14.240
+then design URLs that people can use to access that data.
+
+00:02:14.240 --> 00:02:15.520
+So, let's think about this.
+
+00:02:15.520 --> 00:02:20.000
+We have a URL that is going to begin with API.
+
+00:02:20.000 --> 00:02:24.960
+So, anything after that would be accessing resources.
+
+00:02:24.960 --> 00:02:27.600
+So, if we wanted to access our tickets,
+
+00:02:27.600 --> 00:02:31.679
+then the next segment in the URL would be tickets.
+
+00:02:31.679 --> 00:02:35.279
+And if we wanted to access an individual ticket,
+
+00:02:35.279 --> 00:02:40.759
+we could have a segment after that that has the identifier for that ticket.
+
+00:02:40.759 --> 00:02:41.600
+And then from there,
+
+00:02:41.600 --> 00:02:44.960
+we could at least read all of the information about the ticket.
+
+00:02:44.960 --> 00:02:49.520
+If we wanted to edit, then we can add another segment to the URL.
+
+00:02:49.520 --> 00:02:53.279
+Or if we wanted to delete, we could do something like that.
+
+00:02:53.279 --> 00:02:56.440
+So, it would be tickets, the ticket ID, and
+
+00:02:56.440 --> 00:03:01.919
+then whatever it is that we wanted to do with that ticket.
+
+00:03:01.919 --> 00:03:03.880
+The same thing for users.
+
+00:03:03.880 --> 00:03:07.199
+So, users would give us a list of users.
+
+00:03:07.199 --> 00:03:13.119
+Viewing an individual user would be by using an ID as the next segment,
+
+00:03:13.119 --> 00:03:16.639
+and then we can edit or delete a user that way.
+
+00:03:16.720 --> 00:03:19.199
+So, that's going to be our approach.
+
+00:03:19.199 --> 00:03:21.440
+We just need to have some models.
+
+00:03:21.440 --> 00:03:23.119
+And we already have the user model.
+
+00:03:23.119 --> 00:03:29.880
+So, really all we need to do is use Artisan to make a model called ticket.
+
+00:03:29.880 --> 00:03:33.119
+And let's have the model and the factory.
+
+00:03:33.119 --> 00:03:35.919
+We don't necessarily need the seeder there.
+
+00:03:35.919 --> 00:03:41.119
+So, with that model created, we can go to the migration.
+
+00:03:41.119 --> 00:03:44.360
+And then let's add some columns here.
+
+00:03:44.520 --> 00:03:48.759
+So, the first thing that we need is the foreign ID for
+
+00:03:48.759 --> 00:03:51.559
+the user that submits the ticket.
+
+00:03:51.559 --> 00:03:53.960
+So, let's call foreign ID.
+
+00:03:53.960 --> 00:03:58.520
+We'll pass in user ID, and we need this constrained.
+
+00:03:58.520 --> 00:04:01.440
+So, let's throw that in there as well.
+
+00:04:01.440 --> 00:04:04.320
+Then we just need some information about the ticket.
+
+00:04:04.320 --> 00:04:07.000
+So, let's have a string called title.
+
+00:04:07.000 --> 00:04:13.160
+And we'll have a text field that will be the description.
+
+00:04:13.320 --> 00:04:17.559
+That way the user can supply as much information as they need.
+
+00:04:17.559 --> 00:04:21.200
+And then finally, we will have a status.
+
+00:04:21.200 --> 00:04:27.040
+And we can approach the status in a variety of different ways.
+
+00:04:27.040 --> 00:04:30.600
+But I typically go for just a single character.
+
+00:04:30.600 --> 00:04:33.079
+But sometimes a single character isn't enough.
+
+00:04:33.079 --> 00:04:37.679
+So, we're just going to make this a string, and we'll just call it status.
+
+00:04:37.679 --> 00:04:39.600
+Although for our purposes,
+
+00:04:40.399 --> 00:04:44.519
+I fully intend to have just a single character for the status.
+
+00:04:44.519 --> 00:04:49.880
+So, with that in place, we should be able to migrate our database.
+
+00:04:49.880 --> 00:04:51.760
+So, let's do that.
+
+00:04:51.760 --> 00:04:53.279
+We have our tables.
+
+00:04:53.279 --> 00:04:57.600
+So, now we just need to write our factory for our ticket.
+
+00:04:57.600 --> 00:05:01.239
+So, let's start with the user ID.
+
+00:05:01.239 --> 00:05:04.679
+And here we are going to use the user factory.
+
+00:05:04.679 --> 00:05:08.600
+And then we will have the title, which we just need some words.
+
+00:05:08.600 --> 00:05:10.559
+We don't need anything really specific.
+
+00:05:10.559 --> 00:05:12.079
+So, let's use faker.
+
+00:05:12.079 --> 00:05:18.040
+We'll say that we'll have three words, but we need to pass true as the second argument.
+
+00:05:18.040 --> 00:05:21.160
+That way it will return a string.
+
+00:05:21.160 --> 00:05:26.559
+Then we will have our description, which we will use faker once again.
+
+00:05:26.559 --> 00:05:29.399
+And in this case, let's use paragraph.
+
+00:05:29.399 --> 00:05:32.880
+And then finally, we will have our status.
+
+00:05:32.880 --> 00:05:35.359
+And we will use faker once again.
+
+00:05:35.359 --> 00:05:40.160
+But then we need to think about what our status codes are going to be.
+
+00:05:40.160 --> 00:05:43.040
+We're going to use random element here.
+
+00:05:43.040 --> 00:05:45.559
+And then we just need to pass in an array of values.
+
+00:05:45.559 --> 00:05:48.040
+So, we will have A for active.
+
+00:05:48.040 --> 00:05:49.880
+Let's have C for completed.
+
+00:05:49.880 --> 00:05:52.200
+Let's have H for hold.
+
+00:05:52.200 --> 00:05:55.559
+And then let's have X for canceled.
+
+00:05:55.559 --> 00:05:58.359
+And I think that's going to be good.
+
+00:05:58.359 --> 00:06:03.559
+So, with the factory done, let's go to our database seeder.
+
+00:06:03.600 --> 00:06:07.519
+And we want to create these 10 users.
+
+00:06:07.519 --> 00:06:09.799
+And let's store them.
+
+00:06:09.799 --> 00:06:13.279
+Because then we can create our tickets like this.
+
+00:06:13.279 --> 00:06:19.880
+We will use our ticket factory to create, let's say, 100 tickets.
+
+00:06:19.880 --> 00:06:24.040
+But then we will call recycle and then pass in our users.
+
+00:06:24.040 --> 00:06:29.200
+Now, if you're not familiar with recycle, this is basically going to create 100 tickets.
+
+00:06:29.200 --> 00:06:36.679
+And it is going to assign a random user out of this collection of users to that ticket.
+
+00:06:36.679 --> 00:06:42.119
+So, even though we are creating 100 tickets, we are not creating 100 users.
+
+00:06:42.119 --> 00:06:45.119
+We are reusing the 10 users that were created.
+
+00:06:45.119 --> 00:06:49.079
+But one user will be picked at random to assign to a ticket.
+
+00:06:49.079 --> 00:06:51.000
+Then we will create those tickets.
+
+00:06:51.000 --> 00:06:56.320
+So, we should be able to go to our command line, phpArtisanDbSeed.
+
+00:06:56.320 --> 00:06:58.720
+And hopefully that's going to work.
+
+00:06:58.720 --> 00:06:59.880
+It did.
+
+00:06:59.880 --> 00:07:04.040
+So, now that we have some data, let's go back to our route.
+
+00:07:04.040 --> 00:07:08.320
+And we aren't going to flesh this out in this episode.
+
+00:07:08.320 --> 00:07:11.040
+We will start doing so in the next one.
+
+00:07:11.040 --> 00:07:14.279
+But let's say that we want our tickets route here.
+
+00:07:14.279 --> 00:07:19.119
+So, this is going to be a GET request because we are just getting the tickets.
+
+00:07:19.119 --> 00:07:21.119
+And let's not do anything fancy.
+
+00:07:21.119 --> 00:07:24.679
+Let's just return all of our tickets.
+
+00:07:24.679 --> 00:07:27.720
+That's not really something that we would really want to do.
+
+00:07:27.720 --> 00:07:30.160
+We would want to make this a subset of tickets.
+
+00:07:30.160 --> 00:07:33.160
+But for the sake of this, it's going to be fine.
+
+00:07:33.160 --> 00:07:35.399
+So, with that in place, let's go to Postman.
+
+00:07:35.399 --> 00:07:43.600
+Let's create a new request to where we request for localhost port 8000 API tickets.
+
+00:07:43.600 --> 00:07:46.160
+And we should see our list of tickets.
+
+00:07:46.160 --> 00:07:46.920
+We do.
+
+00:07:46.920 --> 00:07:48.720
+There is our JSON structure.
+
+00:07:48.720 --> 00:07:51.679
+And all 100 tickets should be here.
+
+00:07:51.679 --> 00:07:53.880
+And it looks like it is.
+
+00:07:53.880 --> 00:07:56.559
+So, now that we have some data to work with,
+
+00:07:56.559 --> 00:07:59.920
+now that we know how we want our URLs to look,
+
+00:07:59.920 --> 00:08:02.399
+now we can talk about versioning,
+
+00:08:02.399 --> 00:08:04.399
+which we will do in the next episode.
+

@@ -1,0 +1,467 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:05.000
+Since we're on the topic of design, we need to discuss versioning.
+
+00:00:05.000 --> 00:00:09.000
+Because remember, this is essentially a data access layer.
+
+00:00:09.000 --> 00:00:14.000
+So any change that we make could potentially break a client, and
+
+00:00:14.000 --> 00:00:16.000
+we don't want to do that.
+
+00:00:16.000 --> 00:00:20.000
+So any new feature, any new changes that we need to make,
+
+00:00:20.000 --> 00:00:23.000
+need to be done under a different version.
+
+00:00:23.000 --> 00:00:26.000
+Now you might think, I don't need to version my API.
+
+00:00:26.000 --> 00:00:31.000
+This is a simple API that I'm writing for myself, no one else.
+
+00:00:31.000 --> 00:00:33.000
+Yeah, you still need to.
+
+00:00:33.000 --> 00:00:36.000
+Because how many times have you written something,
+
+00:00:36.000 --> 00:00:39.000
+then you came back to it later and wished, man,
+
+00:00:39.000 --> 00:00:41.000
+I wish I would have done that.
+
+00:00:41.000 --> 00:00:42.000
+It's the story of my life.
+
+00:00:42.000 --> 00:00:45.000
+So just think about versioning.
+
+00:00:45.000 --> 00:00:46.000
+It doesn't take a lot of time.
+
+00:00:46.000 --> 00:00:48.000
+In fact, it's very easy.
+
+00:00:48.000 --> 00:00:52.000
+So just always include versioning, and you will have a lot of
+
+00:00:53.000 --> 00:00:55.000
+always think yourself for it later.
+
+00:00:55.000 --> 00:01:00.000
+So we need to think about how we want to include versioning here.
+
+00:01:00.000 --> 00:01:04.000
+And the easiest and most straightforward thing to do is just to include it in
+
+00:01:04.000 --> 00:01:05.000
+the URL.
+
+00:01:05.000 --> 00:01:07.000
+For one, that makes it easy for clients,
+
+00:01:07.000 --> 00:01:10.000
+because they know exactly what version that they're using.
+
+00:01:10.000 --> 00:01:15.000
+But for us, it also makes it easy because we can route requests
+
+00:01:15.000 --> 00:01:19.000
+to a specific controller based upon that URL.
+
+00:01:19.000 --> 00:01:22.000
+So if we have V2 for tickets,
+
+00:01:22.000 --> 00:01:27.000
+that means that we can route that request to our version two ticket
+
+00:01:27.000 --> 00:01:28.000
+controller.
+
+00:01:28.000 --> 00:01:32.000
+Because yes, we will have different versions of controllers.
+
+00:01:32.000 --> 00:01:35.000
+So this just makes the most straightforward thing to do.
+
+00:01:35.000 --> 00:01:37.000
+We could use headers or something else,
+
+00:01:37.000 --> 00:01:39.000
+but that just overcomplicates things.
+
+00:01:39.000 --> 00:01:42.000
+And life is complicated enough.
+
+00:01:42.000 --> 00:01:44.000
+Don't complicate your software.
+
+00:01:44.000 --> 00:01:47.000
+So now the question becomes, how do we implement this?
+
+00:01:47.000 --> 00:01:49.000
+Well, we could use modules.
+
+00:01:49.000 --> 00:01:50.000
+And in fact,
+
+00:01:50.000 --> 00:01:55.000
+we have a course here at Laricasts by Mateus called Modular Laravel.
+
+00:01:55.000 --> 00:01:58.000
+It's a very good, I highly recommend it.
+
+00:01:58.000 --> 00:02:01.000
+There's also a little bit of setup involved.
+
+00:02:01.000 --> 00:02:05.000
+And while that might be a great approach,
+
+00:02:05.000 --> 00:02:07.000
+that's not what we are going to do.
+
+00:02:07.000 --> 00:02:10.000
+We are just going to modify the default.
+
+00:02:10.000 --> 00:02:15.000
+So that inside of app and HTTP like controllers.
+
+00:02:15.000 --> 00:02:18.000
+So what we will do is have a new folder.
+
+00:02:18.000 --> 00:02:22.000
+We'll call it API so that all of our API related controllers will be
+
+00:02:22.000 --> 00:02:24.000
+inside of the API folder,
+
+00:02:24.000 --> 00:02:28.000
+just so that we could separate that from any other controller that would
+
+00:02:28.000 --> 00:02:31.000
+handle our typical web application.
+
+00:02:31.000 --> 00:02:33.000
+And then inside of there,
+
+00:02:33.000 --> 00:02:36.000
+we would have a folder for our different versions.
+
+00:02:36.000 --> 00:02:40.000
+So here we would have V1 and then V2 and V3 and so on.
+
+00:02:40.000 --> 00:02:45.000
+And then we will have our controllers for those different versions there.
+
+00:02:45.000 --> 00:02:50.000
+We'll do the same type of thing for any other type of class that we need,
+
+00:02:50.000 --> 00:02:54.000
+like requests or resources or things like that.
+
+00:02:54.000 --> 00:02:57.000
+So let's create a controller.
+
+00:02:57.000 --> 00:03:01.000
+Let's go to the command line, PHP artisan, make controller.
+
+00:03:01.000 --> 00:03:03.000
+It already knows what I want to do.
+
+00:03:03.000 --> 00:03:05.000
+So whenever we create the controller,
+
+00:03:05.000 --> 00:03:08.000
+we just need to specify the folder structure that we want.
+
+00:03:08.000 --> 00:03:12.000
+So API slash V1 slash ticket controller,
+
+00:03:12.000 --> 00:03:17.000
+and that's going to get us a ticket controller with the folder structure
+
+00:03:17.000 --> 00:03:19.000
+that we want.
+
+00:03:19.000 --> 00:03:21.000
+But let's also use the resource flag.
+
+00:03:21.000 --> 00:03:25.000
+That way it will scaffold all of the methods that we will need because,
+
+00:03:25.000 --> 00:03:27.000
+you know, we need the index method.
+
+00:03:27.000 --> 00:03:29.000
+We need the store method.
+
+00:03:30.000 --> 00:03:32.000
+We need the update, delete.
+
+00:03:32.000 --> 00:03:34.000
+There's several methods that we need.
+
+00:03:34.000 --> 00:03:37.000
+It'd be useful just to have those automatically there.
+
+00:03:37.000 --> 00:03:42.000
+And we could also go ahead and tell it to not only create the requests that
+
+00:03:42.000 --> 00:03:44.000
+we would want to use,
+
+00:03:44.000 --> 00:03:48.000
+but also type in them inside of our controller.
+
+00:03:48.000 --> 00:03:52.000
+So this will create a tickets controller.
+
+00:03:52.000 --> 00:03:55.000
+Let's go to controllers, API V1,
+
+00:03:56.000 --> 00:03:58.000
+and then ticket controller.
+
+00:03:58.000 --> 00:04:03.000
+And we can see that we have the show method is being type hint with ticket.
+
+00:04:03.000 --> 00:04:05.000
+If we look at the store method,
+
+00:04:05.000 --> 00:04:09.000
+it is being type hinted with the store ticket request.
+
+00:04:09.000 --> 00:04:11.000
+Now, if we look at the requests folder,
+
+00:04:11.000 --> 00:04:14.000
+it's going to be a little bit different because it created those requests
+
+00:04:14.000 --> 00:04:17.000
+directly inside of the requests folder.
+
+00:04:17.000 --> 00:04:22.000
+And instead I would want to do the same thing for the requests folder.
+
+00:04:22.000 --> 00:04:26.000
+I would want to do the same thing for the requests that we did with the
+
+00:04:26.000 --> 00:04:33.000
+controllers so that we would have requests and then API and then V1.
+
+00:04:33.000 --> 00:04:36.000
+And then we would have our requests.
+
+00:04:36.000 --> 00:04:41.000
+That way we just keep things structured the same and we aren't mixing and
+
+00:04:41.000 --> 00:04:44.000
+matching our request objects.
+
+00:04:44.000 --> 00:04:47.000
+We do need to change our namespace here.
+
+00:04:47.000 --> 00:04:50.000
+So this is API V1.
+
+00:04:50.000 --> 00:04:53.000
+We need to make the same change inside of update ticket,
+
+00:04:53.000 --> 00:04:58.000
+but then we also need to make that change inside of our controller.
+
+00:04:58.000 --> 00:05:04.000
+So let's go back to the tickets controller and let's change this use
+
+00:05:04.000 --> 00:05:09.000
+statement and that should get that fixed up.
+
+00:05:09.000 --> 00:05:13.000
+So what we can do inside of the index method, we will simply return.
+
+00:05:13.000 --> 00:05:15.000
+We will use our ticket model.
+
+00:05:15.000 --> 00:05:18.000
+And for right now, we'll just return all of our tickets.
+
+00:05:19.000 --> 00:05:23.000
+We won't worry about storing or anything else like that,
+
+00:05:23.000 --> 00:05:25.000
+at least for right now.
+
+00:05:25.000 --> 00:05:27.000
+And that should get us going.
+
+00:05:27.000 --> 00:05:30.000
+Although we need to set up the route for this.
+
+00:05:30.000 --> 00:05:36.000
+Now we could go inside of api.php and we could add our routes here.
+
+00:05:36.000 --> 00:05:40.000
+And in fact, we have that tickets route from the previous episode,
+
+00:05:40.000 --> 00:05:45.000
+but I don't want to do that because then we would end up with a file that
+
+00:05:45.000 --> 00:05:49.000
+has all of our routes for all of our different versions and that can get
+
+00:05:49.000 --> 00:05:52.000
+very unruly very quickly.
+
+00:05:52.000 --> 00:05:59.000
+So instead, what I want to do is break it out by files so that the api.php
+
+00:05:59.000 --> 00:06:04.000
+file will be our base API routes.
+
+00:06:04.000 --> 00:06:08.000
+So things that don't need versioning like login and register,
+
+00:06:08.000 --> 00:06:12.000
+you know, those could be defined inside of api.php,
+
+00:06:13.000 --> 00:06:17.000
+but then we would have an api underscore v1.
+
+00:06:17.000 --> 00:06:21.000
+And this is where we would put all of our routes for our version one.
+
+00:06:21.000 --> 00:06:27.000
+So we could have our route and then we could say resource tickets.
+
+00:06:27.000 --> 00:06:32.000
+And then we would use the ticket controller class.
+
+00:06:32.000 --> 00:06:37.000
+Now, we don't really want to use resource here because this is going to set up
+
+00:06:37.000 --> 00:06:41.000
+routes for URLs that we don't need.
+
+00:06:41.000 --> 00:06:48.000
+Like, for example, this would set up an api v1 tickets create,
+
+00:06:48.000 --> 00:06:55.000
+and we don't need that URL because the create endpoint would be for showing the
+
+00:06:55.000 --> 00:06:57.000
+form for creating a ticket.
+
+00:06:57.000 --> 00:06:59.000
+We don't have a form to show.
+
+00:06:59.000 --> 00:07:05.000
+So instead of using resource, we can use api resource.
+
+00:07:05.000 --> 00:07:09.000
+And this is going to set up the routes for only the things that we need.
+
+00:07:09.000 --> 00:07:13.000
+So this is going to give us the ability for tickets,
+
+00:07:13.000 --> 00:07:17.000
+for getting the ID, and for storing tickets.
+
+00:07:17.000 --> 00:07:22.000
+But it's not going to set up routes for the unnecessary things for an API,
+
+00:07:22.000 --> 00:07:25.000
+which would be for showing forms.
+
+00:07:25.000 --> 00:07:28.000
+So this create method inside of our tickets controller,
+
+00:07:28.000 --> 00:07:31.000
+we can just get rid of because we don't need it.
+
+00:07:31.000 --> 00:07:35.000
+The same is true for the edit method.
+
+00:07:35.000 --> 00:07:40.000
+So we can get rid of that, and we'll leave everything else there.
+
+00:07:40.000 --> 00:07:48.000
+But we also have to tell our application to now load our version 1 API routes.
+
+00:07:48.000 --> 00:07:53.000
+And we can do that inside of our route service provider,
+
+00:07:53.000 --> 00:07:58.000
+that is inside of the app folder, providers, route service provider.
+
+00:07:58.000 --> 00:08:00.000
+And inside of the boot method,
+
+00:08:00.000 --> 00:08:04.000
+we're going to see where the routes are being set up with this closure.
+
+00:08:04.000 --> 00:08:09.000
+So we can see that the API middleware with the prefix of API
+
+00:08:09.000 --> 00:08:13.000
+is being mapped to routes api.php.
+
+00:08:13.000 --> 00:08:20.000
+We can essentially copy this, and we just need to make a couple of changes
+
+00:08:20.000 --> 00:08:24.000
+so that the prefix would be api slash v1,
+
+00:08:24.000 --> 00:08:30.000
+and that would map to the api underscore v1.php file.
+
+00:08:30.000 --> 00:08:36.000
+So that now all of the routes that we define inside of our version 1 route file,
+
+00:08:36.000 --> 00:08:41.000
+we don't have to say v1 slash and then tickets.
+
+00:08:41.000 --> 00:08:46.000
+It's automatically going to be done because the prefix has been set that way.
+
+00:08:46.000 --> 00:08:50.000
+So if we go to Postman, let's create a new request.
+
+00:08:50.000 --> 00:08:53.000
+Although let's create a new collection first,
+
+00:08:53.000 --> 00:08:56.000
+and let's rename it to tickets.
+
+00:08:56.000 --> 00:08:59.000
+And then we will add a request here.
+
+00:08:59.000 --> 00:09:02.000
+We'll call this get tickets,
+
+00:09:02.000 --> 00:09:09.000
+and we will make a request for our localhost 8000 api v1 tickets.
+
+00:09:09.000 --> 00:09:13.000
+And whenever we send that request, we should get a response back
+
+00:09:13.000 --> 00:09:16.000
+that shows all of our tickets, and it does.
+
+00:09:16.000 --> 00:09:20.000
+And so now that we are done designing our API,
+
+00:09:20.000 --> 00:09:22.000
+and we have data to work with,
+
+00:09:22.000 --> 00:09:26.000
+we need to focus on authentication and authorization,
+
+00:09:26.000 --> 00:09:29.000
+which we will start in the next episode.
+

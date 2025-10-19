@@ -1,0 +1,851 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:10.200
+Handling errors is one of the most important things that we can do within our application.
+
+00:00:10.200 --> 00:00:14.600
+And we kind of handle some errors, but we don't really do a good job of it.
+
+00:00:14.600 --> 00:00:18.160
+For example, inside of our ticket controller and the show method.
+
+00:00:18.160 --> 00:00:24.160
+We attempt to find a ticket, and if it fails, we catch the model not found exception.
+
+00:00:24.160 --> 00:00:25.160
+And that's good.
+
+00:00:25.160 --> 00:00:29.559
+But there are so many other things that can go wrong with a simple database query.
+
+00:00:29.559 --> 00:00:33.480
+We would need to catch other kinds of exceptions as well.
+
+00:00:33.480 --> 00:00:38.720
+And while we could do that, we would need to do that for every other method.
+
+00:00:38.720 --> 00:00:42.820
+And that's getting to the point of not being very useful at all.
+
+00:00:42.820 --> 00:00:44.840
+But there's also another issue.
+
+00:00:44.840 --> 00:00:50.200
+Like for example, let's make a POST request to create a new ticket, but let's cause some
+
+00:00:50.200 --> 00:00:51.680
+validation errors.
+
+00:00:51.680 --> 00:00:55.480
+If we submit this, we are going to get a response.
+
+00:00:55.480 --> 00:00:57.880
+Of course, we get a message, which is good.
+
+00:00:57.880 --> 00:01:00.759
+Then we have the validation errors that occurred.
+
+00:01:00.759 --> 00:01:01.759
+And that's good.
+
+00:01:01.759 --> 00:01:05.839
+We get them all so that we can see what problems we have with our validation.
+
+00:01:05.839 --> 00:01:11.839
+But if we take a look at the GET ticket, we have a completely different structure.
+
+00:01:11.839 --> 00:01:13.760
+We just have a message and a status.
+
+00:01:13.760 --> 00:01:19.720
+So we aren't being consistent with our errors, and we need to be able to handle any error
+
+00:01:19.720 --> 00:01:21.000
+that occurs.
+
+00:01:21.000 --> 00:01:24.400
+And thankfully, it's pretty straightforward to do those things.
+
+00:01:24.400 --> 00:01:31.680
+All we need to do is go to our global exception handler, and we can override the render method.
+
+00:01:31.680 --> 00:01:36.959
+This is the method that executes for every exception, and it renders it.
+
+00:01:36.959 --> 00:01:42.720
+So in our case, we want to render those exceptions as a JSON structure, as a consistent JSON
+
+00:01:42.720 --> 00:01:43.720
+structure.
+
+00:01:43.720 --> 00:01:44.959
+So we will have two arguments.
+
+00:01:44.959 --> 00:01:47.080
+The first is going to be the request.
+
+00:01:47.080 --> 00:01:49.839
+The second will be the throwable exception.
+
+00:01:49.839 --> 00:01:55.040
+And then we could do something like this, to where we would return this error.
+
+00:01:55.040 --> 00:02:02.040
+We could add in our API responses trait, so that we could return the error.
+
+00:02:02.040 --> 00:02:05.080
+But we're going to have to supply some different information here.
+
+00:02:05.080 --> 00:02:06.839
+So let's do this.
+
+00:02:06.839 --> 00:02:08.960
+Let's modify our error method.
+
+00:02:08.960 --> 00:02:14.520
+We use this in so many other places, and we will probably have to touch every one of these.
+
+00:02:14.520 --> 00:02:19.759
+But in order to make things work as we are implementing all of this, we're going to change
+
+00:02:19.759 --> 00:02:20.759
+this.
+
+00:02:20.759 --> 00:02:24.679
+So we'll have simply errors, which is going to be an array.
+
+00:02:24.679 --> 00:02:29.199
+Then we will have the status code, which we will initialize as null.
+
+00:02:29.199 --> 00:02:30.360
+And we'll do this.
+
+00:02:30.360 --> 00:02:35.080
+If errors is a string, then we will keep doing what we were doing.
+
+00:02:35.080 --> 00:02:37.639
+We don't want to break that functionality yet.
+
+00:02:37.639 --> 00:02:42.679
+But of course, we will need our message to be the errors argument there.
+
+00:02:42.679 --> 00:02:49.039
+Otherwise, we will return response, we'll call JSON, and then we will have our errors,
+
+00:02:49.039 --> 00:02:50.960
+and then the errors.
+
+00:02:50.960 --> 00:02:56.800
+So the idea here is that we will have a data structure that looks like this.
+
+00:02:56.800 --> 00:02:58.919
+We'll have errors, which will be an array.
+
+00:02:58.919 --> 00:03:02.240
+And then inside of that array will be the individual error objects.
+
+00:03:02.240 --> 00:03:06.880
+So in the case of a validation exception, we would have multiple objects, because there
+
+00:03:06.880 --> 00:03:09.559
+could be multiple fields that are invalid.
+
+00:03:09.559 --> 00:03:13.360
+But for a model not found, we will just have a status of 404.
+
+00:03:13.360 --> 00:03:18.759
+I don't necessarily think we need the type in those cases, because the status kind of
+
+00:03:18.759 --> 00:03:20.639
+serves as that type.
+
+00:03:20.639 --> 00:03:24.679
+But if it's just a generic exception, I think the type would make sense.
+
+00:03:24.679 --> 00:03:26.759
+Then we could have the value, and then the source.
+
+00:03:26.759 --> 00:03:31.639
+So for a validation exception, the source would be the attribute that the validation
+
+00:03:31.639 --> 00:03:32.919
+exception occurred for.
+
+00:03:32.919 --> 00:03:33.919
+So let's do this.
+
+00:03:33.919 --> 00:03:40.000
+We will return our error, and for just generic exceptions, we'll have our type.
+
+00:03:40.000 --> 00:03:42.080
+And we'll call GetClass.
+
+00:03:42.080 --> 00:03:47.039
+We'll pass in the exception, and that will be the type of exception that occurred.
+
+00:03:47.039 --> 00:03:52.880
+Then we will set the status as 0, because if it's just an uncaught exception, we don't
+
+00:03:52.880 --> 00:03:55.600
+necessarily know what that status would be.
+
+00:03:55.600 --> 00:04:00.119
+Some exceptions would have a status that we could use, but the majority aren't.
+
+00:04:00.119 --> 00:04:04.960
+The majority are going to be something that doesn't really represent an HTTP status code,
+
+00:04:04.960 --> 00:04:07.759
+or it's not going to be useful to the end user.
+
+00:04:07.759 --> 00:04:09.960
+So we'll just leave status as 0.
+
+00:04:09.960 --> 00:04:15.479
+Then we will have our message, which we could have our exception message.
+
+00:04:15.479 --> 00:04:18.279
+And then this is going to be way too much information.
+
+00:04:18.279 --> 00:04:19.880
+But we'll have a source.
+
+00:04:19.880 --> 00:04:24.160
+But for these generic exceptions, don't do this.
+
+00:04:24.160 --> 00:04:25.519
+Just don't do this.
+
+00:04:25.519 --> 00:04:28.040
+This is for an example only.
+
+00:04:28.040 --> 00:04:33.160
+Because I'm going to include the line number by calling GetLine.
+
+00:04:33.160 --> 00:04:38.440
+And then we are also going to include the source code file name.
+
+00:04:38.440 --> 00:04:40.279
+As I said, don't do this.
+
+00:04:40.279 --> 00:04:43.239
+This is providing too much information to the end user.
+
+00:04:43.239 --> 00:04:47.440
+And while you might think, well, I want to see this information, yes, that's what logging
+
+00:04:47.440 --> 00:04:48.559
+is for.
+
+00:04:48.559 --> 00:04:52.359
+Not for providing this to the client, because this is a security risk.
+
+00:04:52.359 --> 00:04:58.320
+If you provide too much information to the end user, that information could be used in
+
+00:04:58.320 --> 00:04:59.320
+an attack.
+
+00:04:59.320 --> 00:05:03.720
+So this source implementation, once again, don't do this.
+
+00:05:03.720 --> 00:05:06.359
+This is only for example purposes.
+
+00:05:06.359 --> 00:05:09.839
+So for our validation exception, we can send that.
+
+00:05:09.839 --> 00:05:12.320
+We now have our new error format.
+
+00:05:12.320 --> 00:05:17.519
+We can see that the class is ValidationException, although we're getting too much information
+
+00:05:17.519 --> 00:05:18.519
+there as well.
+
+00:05:18.519 --> 00:05:20.399
+I just want the class name.
+
+00:05:20.399 --> 00:05:22.880
+We don't need the fully qualified class name.
+
+00:05:22.880 --> 00:05:23.880
+Status is zero.
+
+00:05:23.880 --> 00:05:24.880
+We get the message.
+
+00:05:24.880 --> 00:05:27.640
+But notice that, and one more error.
+
+00:05:27.640 --> 00:05:31.980
+So we want to also not just provide a consistent structure.
+
+00:05:31.980 --> 00:05:34.260
+We don't want to handle just every exception.
+
+00:05:34.260 --> 00:05:41.500
+We also want to provide some custom error objects for like validation errors or ModelNotFoundExceptions.
+
+00:05:41.500 --> 00:05:43.579
+So we will accomplish that here in a little bit.
+
+00:05:43.579 --> 00:05:48.679
+And then source is all of the source code information, which once again, we don't want
+
+00:05:48.679 --> 00:05:52.339
+or need to provide in an error message to the client.
+
+00:05:52.339 --> 00:05:56.700
+But for our ModelNotFoundException, we're still doing that.
+
+00:05:56.700 --> 00:06:00.540
+So what I want to do inside of TicketController, I want to do this.
+
+00:06:00.540 --> 00:06:04.459
+I want to use all of the features provided by Laravel.
+
+00:06:04.459 --> 00:06:06.320
+So I want to use ModelBinding.
+
+00:06:06.320 --> 00:06:12.459
+So we don't have to try to find or fail the ticket, and we don't have to catch a ModelNotFoundException.
+
+00:06:12.459 --> 00:06:16.540
+All we need to do is that, and that would be fantastic.
+
+00:06:16.540 --> 00:06:21.339
+So now, if we attempt to find this, we should see an error in our new format.
+
+00:06:21.339 --> 00:06:26.700
+We see ModelNotFoundException, status is zero, and all of that other information.
+
+00:06:26.700 --> 00:06:28.359
+Let's do this, though.
+
+00:06:28.359 --> 00:06:32.399
+Outside of our handler, I don't want to provide the fully qualified class name.
+
+00:06:32.399 --> 00:06:39.920
+So let's start by writing a class name variable, where we will call getClass an exception.
+
+00:06:39.920 --> 00:06:46.200
+Then we will get the index of the last set of double backslashes.
+
+00:06:46.200 --> 00:06:51.660
+Then for the type, we can call substring, pass in the class name, and we want to start
+
+00:06:51.660 --> 00:06:53.459
+at the index plus one.
+
+00:06:53.459 --> 00:06:57.839
+So now that should give us just ModelNotFoundException.
+
+00:06:57.839 --> 00:07:02.179
+For our validation exception, we should get just ValidationException.
+
+00:07:02.179 --> 00:07:08.140
+So now for these other kinds of exceptions, I want to provide some custom rendering.
+
+00:07:08.140 --> 00:07:09.739
+So let's do this.
+
+00:07:09.739 --> 00:07:15.619
+We can check if the exception instance of, or actually, no, we don't have to do that.
+
+00:07:15.619 --> 00:07:16.940
+We have our class name, don't we?
+
+00:07:16.940 --> 00:07:21.959
+We could check if our class name is ValidationExceptionClass.
+
+00:07:21.959 --> 00:07:26.420
+Then we want to iterate over all of the errors.
+
+00:07:26.420 --> 00:07:32.500
+The errors is an array where the keys are the name of the attributes, and then the values
+
+00:07:32.500 --> 00:07:37.839
+is another array, because there could be multiple errors for a single attribute.
+
+00:07:37.839 --> 00:07:42.019
+So we would need to do something like this, to where we would have our key and value,
+
+00:07:42.019 --> 00:07:48.820
+but then we would need another forEach, so that we iterate over the value as message,
+
+00:07:48.820 --> 00:07:52.440
+so that then we could build our errors.
+
+00:07:52.440 --> 00:07:57.480
+And it could look something like this, to where we would have the status, which would
+
+00:07:57.480 --> 00:08:03.339
+be 422, then we would have the message, which would be our message, and then finally we
+
+00:08:03.339 --> 00:08:08.279
+would have the source, which is the attribute, and that is the key.
+
+00:08:08.279 --> 00:08:15.700
+So that then we could return this error, and passing in errors.
+
+00:08:15.700 --> 00:08:18.239
+So I think that should work.
+
+00:08:18.239 --> 00:08:23.760
+We do need to import ValidationException, but we need to import the correct one, and
+
+00:08:23.760 --> 00:08:26.399
+that is IlluminateValidationValidationException.
+
+00:08:26.399 --> 00:08:30.839
+Even though we're getting a red squiggly here for errors, that should work okay.
+
+00:08:30.839 --> 00:08:33.200
+So let's go back, let's try this.
+
+00:08:33.200 --> 00:08:34.739
+We will send that request.
+
+00:08:34.739 --> 00:08:37.260
+Sure enough, we get our structure.
+
+00:08:37.260 --> 00:08:39.719
+So we have our errors, which is an array.
+
+00:08:39.719 --> 00:08:44.320
+We have one object that has the validation information for the description field.
+
+00:08:44.320 --> 00:08:48.179
+Then we have another object that has the validation for the status.
+
+00:08:48.179 --> 00:08:49.859
+So that's perfect.
+
+00:08:49.859 --> 00:08:53.539
+Now we can do the same thing for the ModelNotFound.
+
+00:08:53.539 --> 00:09:00.940
+So we could check if the class name is ModelNotFoundException, and if so, then we can do that.
+
+00:09:00.940 --> 00:09:06.179
+But the problem with this approach is that as we add more custom renderings for other
+
+00:09:06.179 --> 00:09:11.859
+kinds of exceptions, our render method is going to be very long, and I don't want to
+
+00:09:11.859 --> 00:09:12.859
+do that.
+
+00:09:12.859 --> 00:09:16.780
+So instead, I think we could do something like this.
+
+00:09:16.780 --> 00:09:23.780
+Let's say that we would have a protected field here, which we will call Handlers.
+
+00:09:23.780 --> 00:09:28.859
+And Handlers would look like this, to where we would have the ValidationException class.
+
+00:09:28.859 --> 00:09:34.700
+That's going to be the key, and then the value is going to be a method name, so HandleValidation.
+
+00:09:34.700 --> 00:09:39.419
+Then we can have the ModelNotFoundException as the key.
+
+00:09:39.419 --> 00:09:43.140
+Then we will have a method name called HandleModelNotFound.
+
+00:09:43.140 --> 00:09:50.780
+And so inside of our render method, we could check to see if the Handlers array has the
+
+00:09:50.780 --> 00:09:53.419
+key of our class name variable.
+
+00:09:53.419 --> 00:09:59.539
+And if so, then we will get the name of that method, and then we will call that method.
+
+00:09:59.539 --> 00:10:02.580
+We will pass that to the Error method.
+
+00:10:02.580 --> 00:10:06.820
+So it would look like this, to where we call our method, then we pass in the exception
+
+00:10:06.820 --> 00:10:11.640
+that we want to work with, and that's going to handle that.
+
+00:10:11.640 --> 00:10:16.479
+So that way, we don't have all of this other stuff inside of our render method.
+
+00:10:16.479 --> 00:10:18.559
+In fact, let's just cut this out.
+
+00:10:18.559 --> 00:10:24.000
+Let's delete everything else inside of here, except we still want to do this, getting the
+
+00:10:24.000 --> 00:10:27.619
+substring of our class here for just our generic errors.
+
+00:10:27.619 --> 00:10:31.320
+But there we go, that would be our render method, and I like that approach.
+
+00:10:31.320 --> 00:10:38.599
+So let's have our private, or yeah, let's do this here, private function HandleValidation.
+
+00:10:38.599 --> 00:10:46.239
+We get the validation exception as our argument, then we can paste in that code, and that should
+
+00:10:46.239 --> 00:10:47.239
+work.
+
+00:10:47.239 --> 00:10:52.440
+Let's copy that, let's paste it, let's rename this to HandleModelNotFound.
+
+00:10:52.440 --> 00:10:58.760
+The exception that we work with is a ModelNotFoundException, and this is going to be much easier, to where
+
+00:10:58.760 --> 00:11:04.580
+we will return an array that has the status, which will be a 404.
+
+00:11:04.580 --> 00:11:09.500
+Then we would have the message, which in this case, we could say that the resource
+
+00:11:09.500 --> 00:11:12.940
+cannot be found, and then finally, we could have the source.
+
+00:11:12.940 --> 00:11:18.780
+I don't know what we necessarily want to do for the source, I mean, we could use the GetModel
+
+00:11:18.780 --> 00:11:20.580
+method to get the model name.
+
+00:11:20.580 --> 00:11:26.460
+That might be providing too much information, but I don't know, I don't know.
+
+00:11:26.460 --> 00:11:28.179
+For right now, we'll run with that.
+
+00:11:28.179 --> 00:11:32.020
+That, you know, as I mentioned, that might be just too much information.
+
+00:11:32.020 --> 00:11:35.059
+Instead of returning this error here, we just need to return errors.
+
+00:11:35.059 --> 00:11:37.179
+Okay, so that should work.
+
+00:11:37.179 --> 00:11:42.900
+Our render method is, well, it could be a lot longer, we'll say that.
+
+00:11:42.900 --> 00:11:44.020
+And let's try this out.
+
+00:11:44.020 --> 00:11:48.340
+So for our validation exception, we shouldn't see any difference.
+
+00:11:48.340 --> 00:11:49.900
+That's working just as it should.
+
+00:11:49.900 --> 00:11:56.340
+And for our ModelNotFoundException, we see, yep, we are getting everything that we should.
+
+00:11:56.340 --> 00:12:01.619
+We see the status is 404, message is that the resource can't be found, and that source
+
+00:12:01.619 --> 00:12:02.619
+is Ticket.
+
+00:12:02.619 --> 00:12:05.580
+Although, let's go back, we should not have the type, yep.
+
+00:12:05.580 --> 00:12:06.979
+And I don't think we need the type.
+
+00:12:06.979 --> 00:12:11.940
+The status in these cases gives us the type, basically.
+
+00:12:11.940 --> 00:12:17.099
+422 is essentially a validation exception, 404 is a ModelNotFound, so I think that's
+
+00:12:17.099 --> 00:12:18.099
+good.
+
+00:12:18.099 --> 00:12:22.780
+And so now we have the ability to handle every exception that occurs within our application.
+
+00:12:22.780 --> 00:12:27.820
+We have the ability to provide custom rendering for certain kinds of exceptions.
+
+00:12:27.820 --> 00:12:30.739
+Now we just need to modify our controllers.
+
+00:12:30.859 --> 00:12:34.659
+And I'm not going to modify everything on screen because you don't want to see me do
+
+00:12:34.659 --> 00:12:35.659
+that.
+
+00:12:35.659 --> 00:12:37.219
+But we'll at least do the Ticket controller here.
+
+00:12:37.219 --> 00:12:40.859
+So for our Update method, we will get the provided Ticket.
+
+00:12:40.859 --> 00:12:44.460
+We no longer need to try that or find or fail.
+
+00:12:44.460 --> 00:12:46.340
+We don't have to do anything.
+
+00:12:46.340 --> 00:12:52.900
+And even though we could apply this same approach to our IsAble, you know, we could go back
+
+00:12:52.900 --> 00:12:55.700
+and undo everything that we did in the previous episode.
+
+00:12:55.700 --> 00:12:57.099
+I like this approach.
+
+00:12:57.099 --> 00:13:00.500
+I like seeing the if the user is able to do this.
+
+00:13:01.260 --> 00:13:05.780
+But as far as our error is concerned, you know, we could do something like this to where
+
+00:13:05.780 --> 00:13:08.780
+we have a method called NotAuthorized.
+
+00:13:08.780 --> 00:13:16.900
+And then inside of our API responses, we could implement that protected function NotAuthorized
+
+00:13:16.900 --> 00:13:19.099
+to where we would have our message.
+
+00:13:19.099 --> 00:13:25.219
+But then we would simply return this error where we would have our message would be the
+
+00:13:25.219 --> 00:13:26.780
+provided message.
+
+00:13:26.780 --> 00:13:29.760
+The status would be 401.
+
+00:13:29.760 --> 00:13:34.479
+And I don't necessarily know what we would do for the source, but we'll just provide
+
+00:13:34.479 --> 00:13:36.640
+that as an empty string there.
+
+00:13:36.640 --> 00:13:42.440
+So that way, we can still have the same functionality, the same overall code structure, but it's
+
+00:13:42.440 --> 00:13:43.599
+simplified.
+
+00:13:43.599 --> 00:13:45.400
+So we can go on to the Replace.
+
+00:13:45.400 --> 00:13:50.080
+We don't need the Ticket ID anymore because we can now use model binding.
+
+00:13:50.080 --> 00:13:51.640
+Don't need to find or fail.
+
+00:13:51.640 --> 00:13:53.859
+Don't need to catch the model not found.
+
+00:13:53.859 --> 00:13:58.640
+And then we will return NotAuthorized, pass in our message.
+
+00:13:58.640 --> 00:14:00.359
+And we are good there.
+
+00:14:00.359 --> 00:14:03.880
+And the Destroy method is going to follow the same pattern.
+
+00:14:03.880 --> 00:14:07.000
+We now have our ticket as our argument.
+
+00:14:07.000 --> 00:14:09.479
+Get rid of the try, get rid of the catch.
+
+00:14:09.479 --> 00:14:14.440
+If the user is not able to delete, then they are not authorized.
+
+00:14:14.440 --> 00:14:15.440
+And that's it.
+
+00:14:15.440 --> 00:14:19.900
+I think that covers everything inside of the ticket controller.
+
+00:14:19.900 --> 00:14:22.359
+So let's scroll up just to make sure.
+
+00:14:22.359 --> 00:14:24.719
+Looks like that is indeed the case.
+
+00:14:24.719 --> 00:14:30.039
+Except for our Store method, we need to change Error to NotAuthorized, but that's it.
+
+00:14:30.039 --> 00:14:31.859
+Everything else should be okay.
+
+00:14:31.859 --> 00:14:36.599
+So if we try to delete a ticket that does not exist, let's try to delete the ticket
+
+00:14:36.599 --> 00:14:39.400
+with an ID of 1000.
+
+00:14:39.400 --> 00:14:41.400
+We should get a model not found.
+
+00:14:41.400 --> 00:14:45.159
+I'm not going to test the put or the patch, but let's do this.
+
+00:14:45.159 --> 00:14:51.799
+Let's sign ourselves out just so that we can see the NotAuthorized method work.
+
+00:14:51.799 --> 00:14:55.479
+So let's try to delete a ticket that does exist.
+
+00:14:55.479 --> 00:14:57.739
+We know we have a ticket with an ID of 1.
+
+00:14:57.739 --> 00:15:02.039
+If we try to send that, we get an authentication exception.
+
+00:15:02.039 --> 00:15:06.760
+Now I didn't expect this response, but this makes perfect sense.
+
+00:15:06.760 --> 00:15:12.559
+Because since we are not authenticated, we aren't even making it to our code to check
+
+00:15:12.559 --> 00:15:15.400
+if the user is able to delete the ticket.
+
+00:15:15.400 --> 00:15:18.520
+Because this is done for an authenticated user.
+
+00:15:18.520 --> 00:15:21.599
+So I wasn't thinking whenever I thought about that.
+
+00:15:21.599 --> 00:15:27.960
+But this gives us an opportunity to go ahead and handle that with a custom rendering.
+
+00:15:27.960 --> 00:15:30.479
+So let's just do that right quick.
+
+00:15:30.479 --> 00:15:35.719
+And we will call this method simply HandleAuthentication.
+
+00:15:35.719 --> 00:15:37.679
+And then we just need to implement that.
+
+00:15:37.679 --> 00:15:41.280
+I'm going to copy the HandleModelNotFound.
+
+00:15:41.280 --> 00:15:45.479
+Because this should also be a pretty simple implementation here.
+
+00:15:45.479 --> 00:15:48.479
+So that our exception is Authentication.
+
+00:15:48.479 --> 00:15:51.000
+Our status is going to be 401.
+
+00:15:51.000 --> 00:15:54.880
+The message is that you are not authenticated.
+
+00:15:54.880 --> 00:15:57.919
+Although, let's see what this says.
+
+00:15:57.919 --> 00:15:59.799
+This just says unauthenticated.
+
+00:15:59.799 --> 00:16:04.000
+So I guess we could just stick with that, unauthenticated.
+
+00:16:04.000 --> 00:16:07.719
+And I don't necessarily know what to do for the source.
+
+00:16:07.719 --> 00:16:10.799
+So let's just have an empty string there.
+
+00:16:10.799 --> 00:16:12.599
+So that should work in that case.
+
+00:16:12.599 --> 00:16:14.320
+But let's sign in.
+
+00:16:14.320 --> 00:16:17.960
+I don't remember what the user is, manager.
+
+00:16:17.960 --> 00:16:23.280
+We need a user with less privilege, which I just happen to have.
+
+00:16:23.280 --> 00:16:24.119
+Let's send it.
+
+00:16:24.119 --> 00:16:26.559
+We will update our token.
+
+00:16:26.559 --> 00:16:28.039
+So let's grab that.
+
+00:16:28.039 --> 00:16:32.760
+We'll go to our environments, globals, our bearer token, and save it.
+
+00:16:32.760 --> 00:16:37.520
+Now let's try to delete a ticket that does not belong to this user.
+
+00:16:37.520 --> 00:16:42.159
+I'm going to guess that ticket with an ID of one does not belong to our user.
+
+00:16:42.159 --> 00:16:43.000
+We'll find out.
+
+00:16:43.000 --> 00:16:46.479
+And we get a response that, once again, I didn't expect.
+
+00:16:46.479 --> 00:16:52.960
+But it makes sense because I think inside of our API controller,
+
+00:16:52.960 --> 00:16:56.520
+we are handling the authentication exception.
+
+00:16:56.520 --> 00:16:59.080
+We need to handle the authorization exception.
+
+00:16:59.080 --> 00:17:01.719
+So that wasn't even going to work anyway.
+
+00:17:01.719 --> 00:17:02.640
+So let's try it again.
+
+00:17:02.640 --> 00:17:03.479
+We send that.
+
+00:17:03.479 --> 00:17:04.760
+And we are good to go.
+
+00:17:04.760 --> 00:17:07.880
+So we can now handle any exception that occurs.
+
+00:17:07.880 --> 00:17:10.839
+And not only can we handle every exception,
+
+00:17:10.839 --> 00:17:14.560
+we are able to provide custom rendering for whatever exception
+
+00:17:14.599 --> 00:17:17.119
+that we need to provide custom rendering for.
+
+00:17:17.119 --> 00:17:18.319
+So we're good.
+
+00:17:18.319 --> 00:17:19.040
+Recovered.
+
+00:17:19.040 --> 00:17:22.239
+Now I just need to update our other controllers.
+

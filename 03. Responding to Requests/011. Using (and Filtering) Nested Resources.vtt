@@ -1,0 +1,338 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:10.840
+In the previous episode, we implemented a ticket filtering system, and it works very
+
+00:00:10.840 --> 00:00:11.840
+well.
+
+00:00:11.840 --> 00:00:15.960
+We can filter tickets based upon all of its attributes, the status, the title, created
+
+00:00:15.960 --> 00:00:17.360
+at and updated at.
+
+00:00:17.360 --> 00:00:22.840
+But one of the things we didn't do is provide the ability to filter based upon the author
+
+00:00:22.840 --> 00:00:23.840
+of the ticket.
+
+00:00:23.840 --> 00:00:29.120
+So that if we wanted to get all of the tickets by a particular author, you know, we could
+
+00:00:29.120 --> 00:00:30.120
+do that.
+
+00:00:30.120 --> 00:00:34.400
+And it's perfectly acceptable to want that functionality.
+
+00:00:34.400 --> 00:00:38.439
+However, I don't think we should be doing that through the tickets.
+
+00:00:38.439 --> 00:00:43.720
+Because if we have the user ID, then we already know who that user is, and we should be going
+
+00:00:43.720 --> 00:00:46.680
+through the user endpoint.
+
+00:00:46.680 --> 00:00:51.639
+Because yes, we can include the tickets for a given user.
+
+00:00:51.639 --> 00:00:56.360
+But of course, that's just including the tickets with the user payload.
+
+00:00:56.360 --> 00:01:02.000
+What if we did something like this to where we could specify a specific user and then
+
+00:01:02.000 --> 00:01:04.680
+have another segment that says tickets?
+
+00:01:04.680 --> 00:01:08.360
+That way, we would get the tickets just for that user.
+
+00:01:08.360 --> 00:01:15.040
+And then we could use our ticket filtering system to filter those tickets from there.
+
+00:01:15.040 --> 00:01:16.540
+That makes the most sense to me.
+
+00:01:16.540 --> 00:01:17.540
+So let's do it.
+
+00:01:17.540 --> 00:01:22.879
+We are going to be redoing some things, though, however, because, you know, we've used this
+
+00:01:22.879 --> 00:01:27.080
+term user because, well, we have users in the database.
+
+00:01:27.080 --> 00:01:30.320
+But logically, we have really two types of users.
+
+00:01:30.320 --> 00:01:31.800
+Right now, we just have an author.
+
+00:01:31.800 --> 00:01:36.199
+But eventually, we will have the person that the ticket is assigned to.
+
+00:01:36.199 --> 00:01:41.400
+So we need to make that distinction, at least as far as our controllers and all of our stuff
+
+00:01:41.400 --> 00:01:42.400
+is concerned.
+
+00:01:42.400 --> 00:01:44.580
+So we're going to make some changes.
+
+00:01:44.580 --> 00:01:49.739
+First of all, let's go to our routes, because that's really the first place that we need
+
+00:01:49.739 --> 00:01:50.739
+to go.
+
+00:01:50.739 --> 00:01:56.739
+So API view one, and instead of users, we are going to say authors.
+
+00:01:56.739 --> 00:02:01.379
+And we're going to change our users controller to authors controller.
+
+00:02:01.379 --> 00:02:04.540
+So we just need to make those changes first.
+
+00:02:04.540 --> 00:02:09.779
+And that means we will need to go to our user controller so that we can change its name.
+
+00:02:09.779 --> 00:02:14.240
+And if we're going to change its name, we might as well change its file name as well.
+
+00:02:14.240 --> 00:02:16.059
+So we'll get that done.
+
+00:02:16.059 --> 00:02:20.539
+Now inside of our new authors controller, we need to change this.
+
+00:02:20.539 --> 00:02:26.179
+It's still a user, but we're going to change the parameter name to author instead of user,
+
+00:02:26.179 --> 00:02:28.220
+make the necessary changes there.
+
+00:02:28.220 --> 00:02:31.339
+We'll worry about the update and all of that stuff later on.
+
+00:02:31.339 --> 00:02:36.740
+For right now, we're just focusing on what we are working with at this point in time.
+
+00:02:36.740 --> 00:02:40.539
+And then from here, we need to go to our resource classes.
+
+00:02:40.539 --> 00:02:42.860
+So let's go to our user resource.
+
+00:02:42.860 --> 00:02:49.500
+And instead of this route is users.star, we want authors.star.
+
+00:02:49.500 --> 00:02:55.020
+We'll need to change basically everything where we use that, but that's it.
+
+00:02:55.020 --> 00:02:59.580
+Let's go to our ticket resource because we have one use here.
+
+00:02:59.580 --> 00:03:00.820
+And that should be it.
+
+00:03:00.820 --> 00:03:02.860
+So let's do a sanity check.
+
+00:03:02.860 --> 00:03:05.539
+Let's make a request for our user.
+
+00:03:05.539 --> 00:03:11.500
+We need to change the URL to authors, and we don't have the tickets stuff yet.
+
+00:03:11.500 --> 00:03:13.619
+So let's send that request.
+
+00:03:13.619 --> 00:03:14.820
+We get our users.
+
+00:03:14.820 --> 00:03:15.460
+We're good to go.
+
+00:03:15.460 --> 00:03:19.460
+So let's move on now that we have made those changes.
+
+00:03:19.460 --> 00:03:25.419
+And we are going to create a new controller, and it's called a nested resource controller.
+
+00:03:25.419 --> 00:03:32.699
+So the idea is that our main resource is authors, and we are showing an individual author.
+
+00:03:32.699 --> 00:03:36.660
+But then we want to show some child information, like the tickets.
+
+00:03:36.660 --> 00:03:39.300
+The tickets are a child of the author.
+
+00:03:39.300 --> 00:03:47.059
+So we will create a nested resource controller to where this is, of course, going to be API V1.
+
+00:03:47.059 --> 00:03:49.619
+But then the controller name will be author.
+
+00:03:49.619 --> 00:03:53.020
+That's the parent, ticket, that's the child, and then controller.
+
+00:03:53.020 --> 00:03:56.979
+And I guess we should do author tickets controller.
+
+00:03:56.979 --> 00:03:59.860
+And we could specify resource and all that stuff,
+
+00:03:59.860 --> 00:04:03.580
+but I'm just going to create just a normal empty controller there.
+
+00:04:03.580 --> 00:04:08.300
+And let's go back to our routes because we need to add our routes here.
+
+00:04:08.300 --> 00:04:09.860
+And it's going to look like this.
+
+00:04:09.860 --> 00:04:15.419
+We're going to have authors.tickets, once again, the parent-child relationship.
+
+00:04:15.419 --> 00:04:19.739
+And then, of course, the name here will be author ticket controller.
+
+00:04:19.739 --> 00:04:23.100
+And there we go as far as that is concerned.
+
+00:04:23.100 --> 00:04:28.700
+So now we can go to our author tickets controller, and we will have this index method.
+
+00:04:28.700 --> 00:04:34.179
+This is, of course, going to show all of the tickets for the given author ID.
+
+00:04:34.179 --> 00:04:38.140
+So we will get that as the argument so that then we can return,
+
+00:04:38.140 --> 00:04:43.660
+and we can use our ticket resource because we are still working with the ticket resource here.
+
+00:04:43.660 --> 00:04:48.859
+It's just that we are working with a subset of those tickets based upon the author ID.
+
+00:04:48.859 --> 00:04:53.420
+So we will have our collection, and then we will use our ticket model.
+
+00:04:53.420 --> 00:04:59.540
+And for right now, let's just say where the user ID is equal to the author ID.
+
+00:04:59.540 --> 00:05:03.140
+And then we want to paginate those results.
+
+00:05:03.140 --> 00:05:07.700
+So if we take a look at this now, we are going to see that we have our tickets.
+
+00:05:07.700 --> 00:05:08.540
+We have our data.
+
+00:05:08.540 --> 00:05:09.820
+We see the tickets.
+
+00:05:09.820 --> 00:05:12.420
+They are all formatted how they are supposed to be.
+
+00:05:12.420 --> 00:05:14.980
+We have all of the information that we would need.
+
+00:05:14.980 --> 00:05:22.179
+And aside from the URL, I mean, really, this is exactly like what we have as far as our normal tickets are concerned,
+
+00:05:22.179 --> 00:05:24.500
+except that, of course, this is a subset.
+
+00:05:24.500 --> 00:05:29.260
+These are all based upon the author ID of, well, in this case, five.
+
+00:05:29.260 --> 00:05:31.380
+But here's the beautiful thing about this.
+
+00:05:31.380 --> 00:05:35.420
+Since we already have our ticketing system all set up and ready to go,
+
+00:05:35.420 --> 00:05:39.459
+we can still get our ticket filter here as our filters.
+
+00:05:39.459 --> 00:05:42.260
+And we can still call our ticket filters.
+
+00:05:42.260 --> 00:05:43.500
+But really, we don't want to do that.
+
+00:05:43.500 --> 00:05:48.220
+We want to call where, and then we want our filters.
+
+00:05:48.220 --> 00:05:52.420
+And all of that should work just like it did before.
+
+00:05:52.420 --> 00:05:57.059
+Although, let's put this on multiple lines so that it's all nice and pretty.
+
+00:05:57.059 --> 00:05:58.779
+So let's go back to Postman.
+
+00:05:58.779 --> 00:06:00.540
+Let's use some of our filters.
+
+00:06:00.540 --> 00:06:03.500
+So we want only the completed tickets.
+
+00:06:03.500 --> 00:06:05.899
+So we will filter based upon the status.
+
+00:06:05.899 --> 00:06:07.179
+The status code is C.
+
+00:06:07.179 --> 00:06:10.739
+So call to undefined method filters.
+
+00:06:10.739 --> 00:06:13.220
+Yes, because it is filter, isn't it?
+
+00:06:13.220 --> 00:06:14.339
+It's not filters.
+
+00:06:14.339 --> 00:06:16.179
+So with that, there we go.
+
+00:06:16.179 --> 00:06:20.980
+We have our tickets that were all written by the user with an ID of one,
+
+00:06:20.980 --> 00:06:24.380
+and the status is all completed.
+
+00:06:24.380 --> 00:06:26.019
+Looks like there was just one.
+
+00:06:26.019 --> 00:06:29.820
+Okay, so let's include canceled tickets as well,
+
+00:06:29.820 --> 00:06:33.619
+because I want some verification that it's still working.
+
+00:06:33.619 --> 00:06:34.579
+And yes, it is.
+
+00:06:34.579 --> 00:06:39.899
+Okay, so we are able to see that we get both the completed and the canceled tickets.
+
+00:06:39.899 --> 00:06:43.859
+And so now that we have the ability to filter our tickets, both for
+
+00:06:43.859 --> 00:06:50.380
+a specific user and just in general, I want to add the ability to sort data.
+
+00:06:50.380 --> 00:06:52.940
+And we will look at how in the next episode.
+

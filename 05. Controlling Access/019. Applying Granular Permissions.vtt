@@ -1,0 +1,536 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:09.960
+The really nice thing about token abilities is that we can use them practically anywhere
+
+00:00:09.960 --> 00:00:16.160
+that we need to check permissions, and it allows us to do some pretty granular checks.
+
+00:00:16.160 --> 00:00:21.920
+For example, the update method is where a user would update a ticket, and a typical
+
+00:00:21.920 --> 00:00:25.280
+user should be able to update only their own tickets.
+
+00:00:25.280 --> 00:00:31.139
+But we can also limit what they can update, like the title, the description, the status.
+
+00:00:31.139 --> 00:00:32.139
+That should be it.
+
+00:00:32.139 --> 00:00:37.380
+They shouldn't be able to change the author ID that was assigned to their ticket.
+
+00:00:37.380 --> 00:00:43.080
+So one of the ways that we could do that is, well, right here for this mapped attributes.
+
+00:00:43.080 --> 00:00:49.880
+Now if you'll remember, the mapped attributes takes the data from the request and maps that
+
+00:00:49.880 --> 00:00:53.740
+to the actual attributes on our ticket model.
+
+00:00:53.740 --> 00:01:00.220
+So if a user submitted the title and then the author ID, this map would create an array
+
+00:01:00.220 --> 00:01:06.580
+that has the title and its value, the user ID and its value, and then those things would
+
+00:01:06.580 --> 00:01:07.580
+be updated.
+
+00:01:07.580 --> 00:01:13.580
+So for a user that shouldn't be able to do that, you know, they would have that update
+
+00:01:13.580 --> 00:01:19.139
+own ticket ability, we could just drop that out of the map, and we could do something
+
+00:01:19.139 --> 00:01:20.139
+like this.
+
+00:01:20.139 --> 00:01:28.860
+If the user does not have a token that can update own ticket, then we will add that mapping
+
+00:01:28.860 --> 00:01:29.980
+back in.
+
+00:01:29.980 --> 00:01:36.019
+So we will have our attribute map for the author ID, and we will map that to the user
+
+00:01:36.019 --> 00:01:37.019
+ID.
+
+00:01:37.019 --> 00:01:41.260
+And, you know, that would work for the update requests.
+
+00:01:41.260 --> 00:01:46.059
+But it would also cause some issues with our other requests, because this map attributes
+
+00:01:46.059 --> 00:01:51.339
+method is used inside of not just update, but the store method, the replace method,
+
+00:01:51.339 --> 00:01:56.580
+I mean, any place that we need to work with that request data, we are using this mapped
+
+00:01:56.580 --> 00:01:57.580
+attributes.
+
+00:01:57.580 --> 00:02:03.220
+So that really isn't going to work unless if we add other conditions, like if we check
+
+00:02:03.220 --> 00:02:07.980
+if the route is and then you have some other things there, and I don't necessarily want
+
+00:02:07.980 --> 00:02:08.979
+to do that.
+
+00:02:08.979 --> 00:02:13.660
+And there's another problem here as well, because let's assume once again, that the
+
+00:02:14.139 --> 00:02:18.259
+client submits a request to update the title and the author ID.
+
+00:02:18.259 --> 00:02:25.419
+So if we drop out the author ID and just update the ticket, well, we're still processing that
+
+00:02:25.419 --> 00:02:26.419
+request.
+
+00:02:26.419 --> 00:02:27.660
+We still change the title.
+
+00:02:27.660 --> 00:02:30.419
+They see that with the response.
+
+00:02:30.419 --> 00:02:35.940
+And that's really not something that I want to do because it's really an invalid request.
+
+00:02:35.940 --> 00:02:41.979
+If they supplied the author ID and we're not supposed to allow that, then we should tell
+
+00:02:41.979 --> 00:02:45.179
+them, hey, this isn't a valid request.
+
+00:02:45.179 --> 00:02:49.419
+So doing that here inside of mapped attributes really isn't the best place to do that.
+
+00:02:49.419 --> 00:02:56.059
+Instead, well, we should go to the update ticket request, because this is the class
+
+00:02:56.059 --> 00:03:01.220
+for handling the validation for update requests.
+
+00:03:01.220 --> 00:03:03.360
+And this is going to be a real simple change.
+
+00:03:03.360 --> 00:03:09.419
+We can leave our rules as is, but we will still check to see if the user has a token
+
+00:03:09.740 --> 00:03:12.479
+that can update own ticket.
+
+00:03:12.479 --> 00:03:17.460
+And if so, then we are going to change the rule for the author ID.
+
+00:03:17.460 --> 00:03:20.300
+We will simply say that it is prohibited.
+
+00:03:20.300 --> 00:03:21.660
+And that's going to be perfect.
+
+00:03:21.660 --> 00:03:27.100
+That is going to prevent clients from submitting a request that includes the author ID.
+
+00:03:27.100 --> 00:03:32.020
+And of course, that's only for clients that have the update own ticket ability.
+
+00:03:32.020 --> 00:03:38.380
+So then that forces them to submit requests that only have the title description status.
+
+00:03:38.380 --> 00:03:40.300
+And yeah, I think that that's going to work.
+
+00:03:40.300 --> 00:03:46.699
+Now there is a caveat here because we can assign an ability of an asterisk.
+
+00:03:46.699 --> 00:03:52.179
+And if we do that, then that token can do every ability whatsoever.
+
+00:03:52.179 --> 00:03:59.860
+So you know, like for an admin, we might be tempted to assign this asterisk of an ability,
+
+00:03:59.860 --> 00:04:06.460
+in which case this would be true because for all intents and purposes, that admin user
+
+00:04:06.460 --> 00:04:09.339
+would have the update own ticket ability.
+
+00:04:09.339 --> 00:04:13.380
+And so yeah, we kind of need to be aware of that.
+
+00:04:13.380 --> 00:04:14.380
+So let's do this.
+
+00:04:14.380 --> 00:04:20.540
+Inside of abilities, inside of our get abilities, we'll say don't assign an asterisk.
+
+00:04:20.540 --> 00:04:25.140
+That way, you know, that's just a little note to us that, you know, this could cause some
+
+00:04:25.140 --> 00:04:26.140
+problems.
+
+00:04:26.140 --> 00:04:27.839
+So we'll just leave that as is.
+
+00:04:27.839 --> 00:04:30.059
+But otherwise, I like this approach.
+
+00:04:30.059 --> 00:04:31.500
+We'll leave that alone.
+
+00:04:31.500 --> 00:04:32.500
+So that should work.
+
+00:04:32.540 --> 00:04:39.059
+So now I want to turn our attention to the store method because we broke it.
+
+00:04:39.059 --> 00:04:43.660
+And I think we broke it whenever we implemented this mapped attributes method.
+
+00:04:43.660 --> 00:04:49.459
+So this means we need to go to our store ticket request and we need to make a few changes.
+
+00:04:49.459 --> 00:04:56.459
+For our rules here, I want to change this so that we have a default rule for the author
+
+00:04:56.459 --> 00:04:57.459
+ID.
+
+00:04:57.459 --> 00:05:02.339
+Now I know that we use the store ticket request, not just in the ticket controller, but in
+
+00:05:02.339 --> 00:05:04.019
+the auth ticket controller.
+
+00:05:04.019 --> 00:05:05.540
+And we will need to address that.
+
+00:05:05.540 --> 00:05:09.660
+But let's focus on this, make sure that this works first.
+
+00:05:09.660 --> 00:05:12.559
+Then we can work on the other controller there.
+
+00:05:12.559 --> 00:05:17.540
+So what I want to do is have a default rule for the author ID.
+
+00:05:17.540 --> 00:05:20.459
+So we're going to say that it is going to be required.
+
+00:05:20.459 --> 00:05:22.059
+It is an integer.
+
+00:05:22.059 --> 00:05:27.500
+And we could go ahead and we could use the exists rule so that we could check to see
+
+00:05:27.500 --> 00:05:30.579
+inside of the users table, the ID column.
+
+00:05:30.579 --> 00:05:35.579
+And that's going to allow us to get rid of this line of code here where we check to see
+
+00:05:35.579 --> 00:05:37.739
+if that user exists.
+
+00:05:37.739 --> 00:05:42.019
+So we can get rid of that and then we can go back to our request class.
+
+00:05:42.019 --> 00:05:46.839
+We still want to check the route because we need to do different things for the tickets
+
+00:05:46.839 --> 00:05:49.260
+controller and the auth tickets controller.
+
+00:05:49.260 --> 00:05:56.980
+But what I want to do here is we'll check if the user has a token that can create ticket.
+
+00:05:56.980 --> 00:06:01.339
+In which case, we are going to modify that rule.
+
+00:06:01.339 --> 00:06:08.739
+We are simply going to tack on the size constraint and we will concatenate that with...
+
+00:06:08.739 --> 00:06:09.739
+Let's do this.
+
+00:06:09.739 --> 00:06:13.579
+We'll have a variable called user and we'll get its ID.
+
+00:06:13.579 --> 00:06:18.940
+So let's create that variable equals this user.
+
+00:06:18.940 --> 00:06:25.059
+So that means we can use that variable here when we call token can and then we can use
+
+00:06:25.059 --> 00:06:26.059
+that there.
+
+00:06:26.220 --> 00:06:31.500
+So if the user has the ability to create a ticket, then we are basically saying that
+
+00:06:31.500 --> 00:06:37.019
+the author ID needs to match the ID of the logged in user.
+
+00:06:37.019 --> 00:06:41.380
+However, remember that this create ticket is a generic ability.
+
+00:06:41.380 --> 00:06:47.579
+This was used not just by a typical user, but it's also being used by a manager.
+
+00:06:47.579 --> 00:06:51.899
+And in hindsight, I probably should have named these a little bit different like manager
+
+00:06:51.899 --> 00:06:54.019
+create ticket or something like that.
+
+00:06:54.019 --> 00:06:55.459
+But here's what we'll do.
+
+00:06:55.459 --> 00:07:02.339
+We'll create another ability called create own ticket and we will assign that to a typical
+
+00:07:02.339 --> 00:07:07.420
+user so that a typical user will have create own ticket, update own ticket, delete own
+
+00:07:07.420 --> 00:07:08.420
+ticket.
+
+00:07:08.420 --> 00:07:13.700
+That means that here we can check if the ability is to create an own ticket.
+
+00:07:13.700 --> 00:07:19.940
+We make sure that the author ID is the same as the signed in user's ID and we're good
+
+00:07:19.940 --> 00:07:20.940
+to go there.
+
+00:07:20.940 --> 00:07:25.779
+But that does mean we need to update our policy because now we have this new ability.
+
+00:07:25.779 --> 00:07:29.640
+So let's go to our ticket policy.
+
+00:07:29.640 --> 00:07:31.540
+Let's go to the store method.
+
+00:07:31.540 --> 00:07:33.980
+And you know, there's actually a few things we need to do.
+
+00:07:33.980 --> 00:07:37.660
+We need to get rid of the ticket parameter because that's not needed here.
+
+00:07:37.660 --> 00:07:39.980
+We don't have a ticket to work with.
+
+00:07:39.980 --> 00:07:48.179
+And then here we will simply return can the user create a ticket or can the user create
+
+00:07:48.179 --> 00:07:49.179
+own ticket.
+
+00:07:49.179 --> 00:07:50.179
+That should work.
+
+00:07:50.420 --> 00:07:52.540
+That should be good as far as that policy is concerned.
+
+00:07:52.540 --> 00:07:55.339
+So let's go back to our ticket controller.
+
+00:07:55.339 --> 00:08:00.619
+So we check our policy, which this also needs to be different because if we were using the
+
+00:08:00.619 --> 00:08:06.059
+authorize method, what we would do in this case is pass store the name of the policy
+
+00:08:06.059 --> 00:08:10.200
+that we want to check and then we would say the ticket class.
+
+00:08:10.200 --> 00:08:15.440
+So we essentially need to do the same thing here so that we specify the policy, specify
+
+00:08:15.440 --> 00:08:17.980
+our model class and that should work.
+
+00:08:17.980 --> 00:08:20.299
+So we are checking our policy.
+
+00:08:20.299 --> 00:08:22.940
+Then we need to create the ticket.
+
+00:08:22.940 --> 00:08:25.160
+So we will call ticket create.
+
+00:08:25.160 --> 00:08:28.220
+We will pass in our mapped attributes and that should work.
+
+00:08:28.220 --> 00:08:31.820
+But now we don't need to catch the model not found exception.
+
+00:08:31.820 --> 00:08:37.419
+Now we need to catch the authorization exception because the model not found is being handled
+
+00:08:37.419 --> 00:08:39.460
+inside of our validation rules.
+
+00:08:39.460 --> 00:08:41.419
+So we're good to go there.
+
+00:08:41.419 --> 00:08:44.659
+This is so much cleaner than it was and I'm liking it.
+
+00:08:44.659 --> 00:08:48.679
+So now we just need to check and make sure that all of this stuff works.
+
+00:08:48.679 --> 00:08:49.979
+So let's go to Postman.
+
+00:08:49.979 --> 00:08:54.919
+And the first thing we need to do is log out because we now have that new ability.
+
+00:08:54.919 --> 00:09:00.260
+So we need to sign out and sign back in to get our new ability.
+
+00:09:00.260 --> 00:09:05.039
+But we do need to make sure that the email address is not the manager.
+
+00:09:05.039 --> 00:09:07.140
+So we will get our token here.
+
+00:09:07.140 --> 00:09:12.380
+We will go to our environments, globals, we will change the value of our token.
+
+00:09:13.299 --> 00:09:16.500
+So that then we can make our requests.
+
+00:09:16.500 --> 00:09:20.159
+So let's first of all test the patch request.
+
+00:09:20.159 --> 00:09:26.340
+So if I remember correctly, a ticket with an ID of one is not this user's ticket.
+
+00:09:26.340 --> 00:09:31.739
+So if we try to change this, we should get, yep, you are not authorized.
+
+00:09:31.739 --> 00:09:32.739
+Perfect.
+
+00:09:32.739 --> 00:09:37.179
+So let's try that with an ID of two because I think that is our ticket.
+
+00:09:37.179 --> 00:09:39.460
+Let's put this on hold.
+
+00:09:39.460 --> 00:09:40.940
+So we will send that.
+
+00:09:40.940 --> 00:09:41.940
+Yep.
+
+00:09:42.500 --> 00:09:43.500
+Perfect.
+
+00:09:43.500 --> 00:09:44.500
+Let's make sure though.
+
+00:09:44.500 --> 00:09:45.500
+Let's change it to see.
+
+00:09:45.500 --> 00:09:47.340
+Sure enough, that changed.
+
+00:09:47.340 --> 00:09:48.340
+Okay.
+
+00:09:48.340 --> 00:09:50.460
+So we are good as far as that is concerned.
+
+00:09:50.460 --> 00:09:53.020
+Now we need to create a ticket.
+
+00:09:53.020 --> 00:09:56.059
+So we have the attributes, title, all of that stuff.
+
+00:09:56.059 --> 00:09:57.900
+We have the relationships.
+
+00:09:57.900 --> 00:10:00.059
+Let's do a couple of tests first.
+
+00:10:00.059 --> 00:10:02.460
+Let's try for a user that does not exist.
+
+00:10:02.460 --> 00:10:04.219
+So an ID of 1,000.
+
+00:10:04.219 --> 00:10:05.619
+We should get two errors here.
+
+00:10:05.659 --> 00:10:12.539
+We can see that the ID is invalid, and that's because there wasn't a user with that ID.
+
+00:10:12.539 --> 00:10:17.659
+But then we can see that the field must be one, and I love that because that's going
+
+00:10:17.659 --> 00:10:22.020
+to tell clients, hey, this is the value that you need to supply.
+
+00:10:22.020 --> 00:10:23.179
+So that's great.
+
+00:10:23.179 --> 00:10:27.859
+Let's try with a user that does exist, and we should see something similar, except that
+
+00:10:27.859 --> 00:10:32.940
+of course the user exists, so we only get one error, and it says that the field must
+
+00:10:32.940 --> 00:10:33.940
+be one.
+
+00:10:33.940 --> 00:10:34.940
+So great.
+
+00:10:35.260 --> 00:10:36.619
+Let's change that to one.
+
+00:10:36.619 --> 00:10:42.140
+We submit it, and sure enough, we've created a new ticket, and that's awesome.
+
+00:10:42.140 --> 00:10:44.419
+That is working just fine.
+
+00:10:44.419 --> 00:10:48.940
+So I don't think we broke anything else as far as our ticket controller is concerned.
+
+00:10:48.940 --> 00:10:56.940
+Our show method works, I think, the last time that it worked, so we probably didn't break
+
+00:10:56.940 --> 00:10:57.940
+anything.
+
+00:10:57.940 --> 00:11:02.619
+The update method, we know that that works, so we're good there.
+
+00:11:03.619 --> 00:11:07.219
+We shouldn't have broken anything, destroy, we shouldn't have broken anything.
+
+00:11:07.219 --> 00:11:11.460
+So as far as our ticket controller is concerned, I think we're done, and we need to focus on
+
+00:11:11.460 --> 00:11:17.340
+the author ticket controller so that we can get that working, and we will do that in the
+
+00:11:17.340 --> 00:11:18.219
+next episode.
+

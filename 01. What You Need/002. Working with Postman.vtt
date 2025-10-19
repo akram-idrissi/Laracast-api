@@ -1,0 +1,410 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:10.320
+I am a woodworker, and one thing I learned very early on is that the right tool makes
+
+00:00:10.320 --> 00:00:12.220
+all the difference in the world.
+
+00:00:12.220 --> 00:00:16.820
+And if you don't have that tool, yes, you can get around that, but your results aren't
+
+00:00:16.820 --> 00:00:22.379
+going to be as good, and it's definitely going to take you a lot longer to achieve whatever
+
+00:00:22.379 --> 00:00:24.860
+it is that you were trying to achieve.
+
+00:00:24.860 --> 00:00:31.100
+And the same goes for writing applications, especially web APIs, because we need a tool
+
+00:00:31.100 --> 00:00:34.860
+that we can use to make HTTP requests.
+
+00:00:34.860 --> 00:00:35.860
+And we have one.
+
+00:00:35.860 --> 00:00:36.860
+It's called the browser.
+
+00:00:36.860 --> 00:00:41.980
+In fact, in the previous lesson, we made a GET request for our login route, and we can
+
+00:00:41.980 --> 00:00:46.540
+see the response in the browser, but we don't need a GET request here.
+
+00:00:46.540 --> 00:00:49.099
+We need a POST request.
+
+00:00:49.099 --> 00:00:57.540
+And if we change this to POST, yes, we can write a form to submit that, or we can write
+
+00:00:57.540 --> 00:01:01.020
+some JavaScript, but that's going to take extra time.
+
+00:01:01.020 --> 00:01:06.879
+And really what we need is a tool that we can use to not just make HTTP requests, but
+
+00:01:06.879 --> 00:01:09.260
+also inspect the responses.
+
+00:01:09.260 --> 00:01:12.559
+We need what's called an HTTP debugger.
+
+00:01:12.559 --> 00:01:17.699
+And there are many available, but one that I typically use is called Postman.
+
+00:01:17.820 --> 00:01:23.059
+Now, they do have some pricing tiers, but you can use Postman for free.
+
+00:01:23.059 --> 00:01:27.300
+And it is one of those applications where they want you to sign in, and when you do
+
+00:01:27.300 --> 00:01:31.860
+sign in, you get a lot of extra features than if you don't sign in.
+
+00:01:31.860 --> 00:01:34.900
+But you can use it however you want.
+
+00:01:34.900 --> 00:01:36.519
+Just download and install it.
+
+00:01:36.519 --> 00:01:39.379
+If you want to sign in, great.
+
+00:01:39.379 --> 00:01:42.779
+It gives you the ability to create a workspace.
+
+00:01:42.779 --> 00:01:48.180
+So if you are working on multiple APIs, you can create workspaces for those individual
+
+00:01:48.180 --> 00:01:49.180
+projects.
+
+00:01:49.180 --> 00:01:54.620
+I'm going to create a workspace, I'll call it Tickets Please, which, by the way, this
+
+00:01:54.620 --> 00:01:58.580
+is for creating and managing support tickets.
+
+00:01:58.580 --> 00:02:02.699
+I don't think I mentioned that in the previous lesson, but that's the general idea.
+
+00:02:02.699 --> 00:02:07.059
+And once you have a workspace, just click on the plus sign up at the top, and this is
+
+00:02:07.059 --> 00:02:09.740
+going to create a new request.
+
+00:02:09.740 --> 00:02:13.220
+So let's make a request for our login route.
+
+00:02:13.220 --> 00:02:16.179
+That was API and login.
+
+00:02:16.179 --> 00:02:21.139
+And we will see the result in the response, except, no, we won't, because I just changed
+
+00:02:21.139 --> 00:02:22.660
+that to post, didn't I?
+
+00:02:22.660 --> 00:02:23.839
+Yes, I did.
+
+00:02:23.839 --> 00:02:29.039
+But that's one of the beautiful things about something like Postman, is that we can easily
+
+00:02:29.039 --> 00:02:30.899
+change the type of request.
+
+00:02:30.899 --> 00:02:36.059
+We now have a post request, we can send that, and we can see that we are getting the appropriate
+
+00:02:36.059 --> 00:02:37.059
+response.
+
+00:02:37.100 --> 00:02:42.500
+Now, of course, in order to log in, we need to supply some credentials.
+
+00:02:42.500 --> 00:02:47.179
+And we don't have anything as far as authentication is concerned yet, but we can go ahead and
+
+00:02:47.179 --> 00:02:53.660
+we can set this request up so that whenever we do have authentication, well, this will
+
+00:02:53.660 --> 00:02:54.660
+work.
+
+00:02:54.660 --> 00:02:57.259
+So let's make a request.
+
+00:02:57.259 --> 00:03:03.320
+We'll use Artisan to make a request, and we'll call this API Login Request.
+
+00:03:03.320 --> 00:03:08.479
+And as far as a login request is concerned, we will essentially just have two pieces of
+
+00:03:08.479 --> 00:03:09.479
+information.
+
+00:03:09.479 --> 00:03:12.720
+We'll have the email address and the password.
+
+00:03:12.720 --> 00:03:18.919
+So let's add some validation rules, because we need to be sure we have those pieces of
+
+00:03:18.919 --> 00:03:19.919
+information.
+
+00:03:19.919 --> 00:03:26.919
+Let's change the authorize to true, because if it's false, then the user is not going
+
+00:03:26.919 --> 00:03:31.479
+to be able to log in, because they will not be authorized to do that.
+
+00:03:31.479 --> 00:03:33.160
+So we will set that to true.
+
+00:03:33.160 --> 00:03:39.639
+And then inside of rules, we will have the email field, which is going to be required.
+
+00:03:39.639 --> 00:03:45.919
+Ideally, we would have some other validation here, and password is going to be required
+
+00:03:45.919 --> 00:03:46.919
+as well.
+
+00:03:46.919 --> 00:03:51.160
+And then we can use this request inside of our auth controller.
+
+00:03:51.160 --> 00:03:57.520
+For our login method, we will type hint for the API Login Request.
+
+00:03:57.520 --> 00:04:02.880
+And instead of outputting hello login, let's do this.
+
+00:04:02.880 --> 00:04:06.800
+We will output the email address that was supplied.
+
+00:04:06.800 --> 00:04:11.320
+So we will get the email from the request, and we should see that.
+
+00:04:11.320 --> 00:04:13.880
+So let's go to Postman.
+
+00:04:13.880 --> 00:04:18.839
+Now we need to be able to send this information with the request, and we can do so by going
+
+00:04:18.839 --> 00:04:22.600
+to this Body tab here.
+
+00:04:22.679 --> 00:04:28.679
+And we want to set this to form data, and then we will set the keys and values.
+
+00:04:28.679 --> 00:04:32.119
+So our first key is going to be email.
+
+00:04:32.119 --> 00:04:37.279
+The value is going to be whatever email address that we want to use.
+
+00:04:37.279 --> 00:04:39.559
+Let's use jeremy at mcpeak.com.
+
+00:04:39.559 --> 00:04:44.760
+And then for the password, let's have password 1234.
+
+00:04:44.760 --> 00:04:50.260
+And whenever we submit this, we should see the same structure, except that the message
+
+00:04:50.260 --> 00:04:53.160
+is now the address that we included.
+
+00:04:53.160 --> 00:04:59.820
+And of course, whatever we pass as the email address is going to be represented in the
+
+00:04:59.820 --> 00:05:03.220
+message that we get back from the server.
+
+00:05:03.220 --> 00:05:07.899
+But what happens if we provide the email address but not the password?
+
+00:05:07.899 --> 00:05:11.100
+Now remember that the password is required.
+
+00:05:11.100 --> 00:05:17.459
+So whenever we send that request, well, we can see that the status is 200, but that's
+
+00:05:17.459 --> 00:05:19.459
+not necessarily what we want.
+
+00:05:19.459 --> 00:05:24.540
+In fact, if we take a look at this, we can preview this, and we're going to see that
+
+00:05:24.540 --> 00:05:29.019
+we get what looks like a typical Laravel starting page.
+
+00:05:29.019 --> 00:05:32.700
+Ideally, we would get back some kind of error.
+
+00:05:32.700 --> 00:05:38.980
+Well, we can, but what we need to do is tell the API that, hey, I'm sending you this data.
+
+00:05:38.980 --> 00:05:42.899
+I want you to send me back data as JSON.
+
+00:05:42.899 --> 00:05:47.220
+And we can do that by providing the Accept header with the request.
+
+00:05:47.220 --> 00:05:48.420
+So let's go to Headers.
+
+00:05:48.420 --> 00:05:50.380
+Let's add the Accept header.
+
+00:05:50.380 --> 00:05:55.140
+And we want to accept application slash JSON.
+
+00:05:55.140 --> 00:06:00.339
+So if we send this request, once again, now we get a JSON response.
+
+00:06:00.339 --> 00:06:04.540
+And we can see that the message is that the password field is required.
+
+00:06:04.540 --> 00:06:09.859
+And then it shows the errors that the password field is required.
+
+00:06:09.859 --> 00:06:14.700
+Now, this might seem a little cumbersome, because the client will always have to
+
+00:06:14.700 --> 00:06:18.140
+include that Accept header with every request.
+
+00:06:18.140 --> 00:06:24.660
+But most APIs require that anyway, because there are many that will return data
+
+00:06:24.660 --> 00:06:26.260
+in whatever format that you want.
+
+00:06:26.260 --> 00:06:30.019
+It could be JSON, it could be XML, it could be HTML.
+
+00:06:30.019 --> 00:06:34.700
+It, of course, depends upon the API, but this is not uncommon.
+
+00:06:34.700 --> 00:06:39.380
+But one thing we will have to remember going forward is that as we are testing
+
+00:06:39.380 --> 00:06:46.100
+our application and testing our routes, we need to ensure that we include the Accept header.
+
+00:06:46.100 --> 00:06:50.779
+Now, one of the really nice things about Postman is that we have this workspace
+
+00:06:50.779 --> 00:06:54.339
+that we can then start saving requests to.
+
+00:06:54.339 --> 00:06:57.739
+So we have a request going to our login endpoint.
+
+00:06:57.739 --> 00:07:00.179
+So we can just save that.
+
+00:07:00.179 --> 00:07:03.779
+We can give it a name of login request.
+
+00:07:03.779 --> 00:07:09.380
+And we could put it inside of a new collection, which we could call authentication.
+
+00:07:09.380 --> 00:07:14.420
+So that whenever we write a route for our register endpoint,
+
+00:07:14.420 --> 00:07:16.459
+we could essentially do the same thing.
+
+00:07:16.459 --> 00:07:19.779
+So let's write a register method.
+
+00:07:19.779 --> 00:07:26.140
+For right now, we aren't going to have a request object, but we can return OK.
+
+00:07:26.140 --> 00:07:30.540
+And for the sake of simplicity, let's just return the message of register.
+
+00:07:30.540 --> 00:07:39.299
+Let's go to our API file so that we can handle the post request for the register endpoint,
+
+00:07:39.299 --> 00:07:42.540
+and that is on our auth controller and the register method.
+
+00:07:42.579 --> 00:07:44.579
+So we can go back to Postman.
+
+00:07:44.579 --> 00:07:47.420
+We can create a new request.
+
+00:07:47.420 --> 00:07:49.299
+It is a post request.
+
+00:07:49.299 --> 00:07:54.100
+Instead of login, we want to make a request for register.
+
+00:07:54.100 --> 00:07:55.220
+We can send that.
+
+00:07:55.220 --> 00:07:57.100
+We will see the response.
+
+00:07:57.100 --> 00:07:59.100
+We have the message of register.
+
+00:07:59.100 --> 00:08:00.859
+The status was 200.
+
+00:08:00.859 --> 00:08:06.700
+And if we wanted, we could save this request so that it is the registration.
+
+00:08:06.700 --> 00:08:12.220
+And what saving this request does is gives us easy access to come back and
+
+00:08:12.220 --> 00:08:15.019
+make these requests over again.
+
+00:08:15.019 --> 00:08:19.779
+So that anytime that we want to test our login or
+
+00:08:19.779 --> 00:08:24.940
+our registration routes, we can go to our collections, go to authentication,
+
+00:08:24.940 --> 00:08:31.019
+and just double click on login or registration, and it will open up that request.
+
+00:08:31.019 --> 00:08:35.940
+So all we have to do is then provide whatever body and then send it, and
+
+00:08:35.940 --> 00:08:37.739
+we could see the response.
+
+00:08:37.739 --> 00:08:40.020
+So for example, if we open up login,
+
+00:08:40.020 --> 00:08:44.900
+we should see inside of the body that we have the email and the password.
+
+00:08:44.900 --> 00:08:50.979
+So we do, we can send, and it just gives us easy access to make those requests.
+
+00:08:50.979 --> 00:08:54.940
+Now, we are going to make extensive use of Postman because really,
+
+00:08:54.940 --> 00:08:58.979
+there's no better way to actually test a web API.
+
+00:08:58.979 --> 00:09:02.900
+I mean, yes, we can write tests inside of our application to run them, but
+
+00:09:02.900 --> 00:09:06.619
+there's nothing better than actually making the HTTP request,
+
+00:09:06.619 --> 00:09:10.820
+seeing the response, and having that actual confirmation that it works.
+

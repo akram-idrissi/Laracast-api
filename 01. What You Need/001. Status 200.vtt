@@ -1,0 +1,356 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:29.760
+Okay.
+
+00:00:29.760 --> 00:00:34.520
+So the way that we write web applications has drastically changed, and really it started
+
+00:00:34.520 --> 00:00:35.759
+with Angular.
+
+00:00:35.759 --> 00:00:41.880
+Once Angular came on the scene, the idea of a single-page application became a reality.
+
+00:00:41.880 --> 00:00:46.639
+We could kind of get away with it before, but Angular is really what made it possible.
+
+00:00:46.639 --> 00:00:52.119
+And then, of course, React and Vue came on, and, well, it's just how we write modern web
+
+00:00:52.119 --> 00:00:53.360
+applications.
+
+00:00:53.360 --> 00:00:55.240
+The client does a lot of the heavy lifting.
+
+00:00:55.240 --> 00:00:58.619
+In fact, it does a lot of the work that the server used to do.
+
+00:00:58.619 --> 00:01:05.940
+It generates the markup that's rendered within the browser, and the server is, well, really
+
+00:01:05.940 --> 00:01:08.940
+it's a glorified data access layer.
+
+00:01:08.940 --> 00:01:13.019
+That might be a little unfair, but really that's all it is.
+
+00:01:13.019 --> 00:01:18.120
+So of course, web applications still need a server side, but it's a little bit different.
+
+00:01:18.120 --> 00:01:24.779
+We need to write an API, which is a different approach from writing a typical server application.
+
+00:01:24.779 --> 00:01:27.339
+So let's learn how to do that.
+
+00:01:27.339 --> 00:01:31.300
+Now we can start an API in a variety of ways.
+
+00:01:31.300 --> 00:01:38.419
+We could reach for Laravel and create a Laravel project, or we could create a Lumen project.
+
+00:01:38.419 --> 00:01:46.879
+But really, Lumen is, well, it's very well suited for really small micro APIs.
+
+00:01:46.879 --> 00:01:54.800
+If you need anything beyond really simple stuff, you'll want to reach for Laravel.
+
+00:01:54.800 --> 00:01:56.820
+So let's create a new Laravel project.
+
+00:01:56.820 --> 00:01:58.940
+Let's call it Tickets, please.
+
+00:01:58.940 --> 00:02:03.559
+And of course, we are going to be prompted with how we want to start.
+
+00:02:03.559 --> 00:02:05.180
+Do we want no starter kit?
+
+00:02:05.180 --> 00:02:07.540
+Do we want to use Breeze or Jetstream?
+
+00:02:07.540 --> 00:02:11.179
+Now we could choose any one of these options, and it's going to be fine.
+
+00:02:11.179 --> 00:02:16.520
+Jetstream is going to give us a lot of out of the box because it has Sanctum already
+
+00:02:16.520 --> 00:02:18.139
+set up and ready to go.
+
+00:02:18.139 --> 00:02:20.380
+The same is true for Breeze.
+
+00:02:20.380 --> 00:02:26.139
+And in a real project, we would probably reach for one of those options because, well, it
+
+00:02:26.139 --> 00:02:27.419
+just saves us time.
+
+00:02:27.419 --> 00:02:31.500
+However, our goal here isn't to write a real application.
+
+00:02:31.500 --> 00:02:33.940
+We want to learn how this stuff is going to work.
+
+00:02:33.940 --> 00:02:36.339
+So let's start with none.
+
+00:02:36.339 --> 00:02:39.139
+And we're going to do everything from scratch.
+
+00:02:39.139 --> 00:02:42.419
+For our testing framework, let's choose PEST.
+
+00:02:42.419 --> 00:02:46.300
+And yes, I want to initialize the Git repository.
+
+00:02:46.300 --> 00:02:49.339
+For our database, let's choose MySQL.
+
+00:02:49.339 --> 00:02:52.399
+And then let's write our first route.
+
+00:02:52.399 --> 00:02:59.679
+And we will do so by going to the api.php file inside of our routes folder.
+
+00:02:59.679 --> 00:03:02.759
+And there's already going to be a route in here.
+
+00:03:02.759 --> 00:03:06.960
+We will see that it is for the user endpoint.
+
+00:03:06.960 --> 00:03:09.240
+We don't need to worry about that right now.
+
+00:03:09.240 --> 00:03:16.839
+We just want a route that's going to handle a GET request for the root of our API.
+
+00:03:16.839 --> 00:03:22.919
+And let's just return a response that is going to have some JSON.
+
+00:03:22.919 --> 00:03:28.399
+Because when it comes to building an API, JSON is the de facto standard for our data
+
+00:03:28.399 --> 00:03:29.399
+format.
+
+00:03:29.399 --> 00:03:32.539
+There's nothing that says that you can provide data in another format.
+
+00:03:32.539 --> 00:03:35.779
+It's just that most clients expect JSON.
+
+00:03:35.779 --> 00:03:40.080
+So let's have a structure that has a message.
+
+00:03:40.080 --> 00:03:42.279
+And then we'll just say, hello world.
+
+00:03:42.279 --> 00:03:44.440
+Or let's do hello API.
+
+00:03:44.440 --> 00:03:48.699
+Let's make this return the status code of 200 for OK.
+
+00:03:48.699 --> 00:03:49.919
+And then let's test it.
+
+00:03:49.919 --> 00:03:52.839
+Be sure that your project is running.
+
+00:03:52.839 --> 00:03:55.559
+And we will go to slash API.
+
+00:03:55.559 --> 00:04:00.559
+Because when it comes to an API, the URL begins with API.
+
+00:04:00.559 --> 00:04:01.820
+We can change that.
+
+00:04:01.820 --> 00:04:05.919
+But the convention is to stick with the API prefix.
+
+00:04:05.919 --> 00:04:09.759
+So whenever we make a request, we will see that we get a JSON response.
+
+00:04:09.759 --> 00:04:12.479
+The message is hello API.
+
+00:04:12.479 --> 00:04:15.839
+Now, of course, most of the time we want to handle these kinds of requests
+
+00:04:15.839 --> 00:04:17.440
+using a controller.
+
+00:04:17.440 --> 00:04:21.640
+So instead of using this route, let's create a controller.
+
+00:04:21.640 --> 00:04:23.920
+In fact, let's create an auth controller.
+
+00:04:23.920 --> 00:04:28.760
+Because we will want to provide the ability for users to sign in, sign out,
+
+00:04:28.760 --> 00:04:31.799
+and register accounts through the API.
+
+00:04:31.799 --> 00:04:34.679
+So let's make a controller.
+
+00:04:34.679 --> 00:04:36.359
+Let's call it auth controller.
+
+00:04:36.359 --> 00:04:39.359
+And let's start with a login method.
+
+00:04:39.359 --> 00:04:42.160
+Now, we're not going to actually log in.
+
+00:04:42.160 --> 00:04:47.079
+But we will essentially do the same thing that we did for our beginning route.
+
+00:04:47.079 --> 00:04:53.720
+We will return a JSON response so that we can see that it's working as it should.
+
+00:04:53.720 --> 00:04:57.320
+So let's have a public method called login.
+
+00:04:57.320 --> 00:04:59.119
+We will paste in that code.
+
+00:04:59.119 --> 00:05:00.720
+But let's change this.
+
+00:05:00.720 --> 00:05:03.040
+Let's say hello login.
+
+00:05:03.040 --> 00:05:05.640
+And we, of course, need to set up this route.
+
+00:05:05.640 --> 00:05:08.519
+The URL would be simply slash login.
+
+00:05:08.519 --> 00:05:14.959
+And we will specify the auth controller and the login method.
+
+00:05:14.959 --> 00:05:17.880
+Now, of course, the URL that we need to hit is going to change.
+
+00:05:17.880 --> 00:05:20.760
+But it is still prefixed with API.
+
+00:05:20.760 --> 00:05:23.160
+Let's hit API slash login.
+
+00:05:23.160 --> 00:05:26.559
+And we, of course, see hello login.
+
+00:05:26.559 --> 00:05:30.640
+But this is going to be a common pattern to where we, of course,
+
+00:05:30.640 --> 00:05:32.000
+want to return JSON.
+
+00:05:32.000 --> 00:05:35.880
+But we also want to supply some kind of status code to go with it.
+
+00:05:35.880 --> 00:05:42.559
+So really, it would make more sense to have a trait that we could use inside of our controllers.
+
+00:05:42.559 --> 00:05:47.440
+So inside of the app folder, let's create a new folder called traits.
+
+00:05:47.440 --> 00:05:52.279
+And inside of traits, let's create a new file we will call API responses.
+
+00:05:52.279 --> 00:05:59.160
+And the idea here is we'll have some helper functions that will make it easy to return
+
+00:05:59.160 --> 00:06:03.880
+responses, like an OK response for a status 200.
+
+00:06:03.880 --> 00:06:07.480
+So we'll use the namespace of app traits.
+
+00:06:07.480 --> 00:06:11.359
+We'll have the trait of API responses.
+
+00:06:11.359 --> 00:06:16.200
+And let's start with a protected function, which we will call success.
+
+00:06:16.200 --> 00:06:21.320
+So this is something that we would call anytime that the request is successful.
+
+00:06:21.320 --> 00:06:25.679
+And we will have a default of a status code of 200.
+
+00:06:25.679 --> 00:06:33.079
+Because when it comes to successful requests, we can have a 200, we can have a 304.
+
+00:06:33.079 --> 00:06:37.559
+There are a lot of status codes that could be considered successful.
+
+00:06:37.559 --> 00:06:42.480
+So we'll just call this success, we will be able to supply a status code.
+
+00:06:42.480 --> 00:06:46.920
+And then we will simply want to return a JSON response.
+
+00:06:46.920 --> 00:06:49.600
+So that we'll have our message,
+
+00:06:49.600 --> 00:06:52.799
+which we will set to what was provided to the function.
+
+00:06:52.799 --> 00:06:58.239
+Then we will have a status that will be set to the status code.
+
+00:06:58.239 --> 00:07:03.679
+And of course, we'll pass the status code as the second argument to the JSON method.
+
+00:07:03.679 --> 00:07:05.720
+And that's going to be fine.
+
+00:07:05.720 --> 00:07:10.760
+But I want to make this as easy as possible as we are using these functions.
+
+00:07:10.760 --> 00:07:16.279
+So I want another one called simply OK, that we can supply a message to.
+
+00:07:16.279 --> 00:07:20.239
+And it will call the success that we just wrote.
+
+00:07:20.239 --> 00:07:23.959
+We'll pass in the message and the status will be 200.
+
+00:07:23.959 --> 00:07:26.079
+So we can go back to AuthController.
+
+00:07:26.119 --> 00:07:30.959
+Let's use our new trait called API responses.
+
+00:07:30.959 --> 00:07:35.880
+And here we will simply return OK, and then hello login.
+
+00:07:35.880 --> 00:07:41.679
+That simplifies the code whenever we need to return some information to the client.
+
+00:07:41.679 --> 00:07:47.679
+And if we go and test this, and there we have our JSON structure.
+
+00:07:47.679 --> 00:07:51.720
+Now, of course, when it comes to developing and testing web APIs,
+
+00:07:51.720 --> 00:07:53.239
+we don't want to use a browser.
+
+00:07:53.239 --> 00:07:56.079
+We want to use a more specialized tool.
+
+00:07:56.079 --> 00:07:59.440
+And we will look at one called Postman in the next lesson.
+
